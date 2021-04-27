@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="Bulijiojio Blog">
 <meta property="og:description" content="不敏卡尔曼滤波首先讨论这样的一个问题一个满足高斯分布的随机变量经过非线性系统的输出随机变量的分布如何确定呢？如果采用蒙特卡洛估方法。下图，在原高斯分布中采样，很多采样点（该图中是500000个画出来的），将采样点通过非线性变换，再统计变换后的结果的均值与方差，近似用一个高斯分布表示。这种方法的缺点很明显，计算量巨大，特别是在高维时。 或者说我们如何得到输出变量的一阶二阶标准矩？考虑一个随机变量 $">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/UKF%5Cv2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg">
-<meta property="og:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/UKF%5Cv2-f796ba1537f34f03eb608cdc299254df_1440w.jpg">
+<meta property="og:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg">
+<meta property="og:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-f796ba1537f34f03eb608cdc299254df_1440w.jpg">
 <meta property="article:published_time" content="2020-06-30T13:01:30.000Z">
 <meta property="article:modified_time" content="2021-04-01T13:48:48.102Z">
 <meta property="article:author" content="YXY">
 <meta property="article:tag" content="卡尔曼滤波">
 <meta property="article:tag" content="不敏变换">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/UKF%5Cv2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg">
+<meta name="twitter:image" content="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg">
 
 <link rel="canonical" href="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/">
 
@@ -219,8 +219,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="不敏卡尔曼滤波"><a href="#不敏卡尔曼滤波" class="headerlink" title="不敏卡尔曼滤波"></a>不敏卡尔曼滤波</h1><p>首先讨论这样的一个问题一个满足高斯分布的随机变量经过非线性系统的输出随机变量的分布如何确定呢？<br>如果采用蒙特卡洛估方法。下图，在原高斯分布中采样，很多采样点（该图中是500000个画出来的），将采样点通过非线性变换，再统计变换后的结果的均值与方差，近似用一个高斯分布表示。这种方法的缺点很明显，计算量巨大，特别是在高维时。<br><img src="UKF%5Cv2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg"></p>
-<p>或者说我们如何得到输出变量的一阶二阶标准矩？<br>考虑一个随机变量 $\boldsymbol{x} \in \mathbb{R}^{n}$ 和非线性变换 $\boldsymbol{g}: \mathbb{R}^{n} \rightarrow \mathbb{R}^{m}$。$z$的均值可以表示为<br>$$<br>E(z)=\int g(\boldsymbol{x}) p(\boldsymbol{x}) d \boldsymbol{x}<br>$$<br>实际上这样的计算在大多数情况下是无法计算的（工程）。<br>而在目标跟踪的过程中其实只要能够数值近似$E(z)$和$D(z)$,在这里采用不敏变换</p>
+        <h1 id="不敏卡尔曼滤波"><a href="#不敏卡尔曼滤波" class="headerlink" title="不敏卡尔曼滤波"></a>不敏卡尔曼滤波</h1><p>首先讨论这样的一个问题一个满足高斯分布的随机变量经过非线性系统的输出随机变量的分布如何确定呢？<br>如果采用蒙特卡洛估方法。下图，在原高斯分布中采样，很多采样点（该图中是500000个画出来的），将采样点通过非线性变换，再统计变换后的结果的均值与方差，近似用一个高斯分布表示。这种方法的缺点很明显，计算量巨大，特别是在高维时。<br><img src="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg" alt></p>
+<p>或者说我们如何得到输出变量的一阶二阶标准矩？<br>考虑一个随机变量 $\boldsymbol{x} \in \mathbb{R}^{n}$ 和非线性变换 $\boldsymbol{g}: \mathbb{R}^{n} \rightarrow \mathbb{R}^{m}$。$z$的均值可以表示为</p>
+<script type="math/tex; mode=display">
+E(z)=\int g(\boldsymbol{x}) p(\boldsymbol{x}) d \boldsymbol{x}</script><p>实际上这样的计算在大多数情况下是无法计算的（工程）。<br>而在目标跟踪的过程中其实只要能够数值近似$E(z)$和$D(z)$,在这里采用不敏变换</p>
 <h2 id="不敏变换（UT）"><a href="#不敏变换（UT）" class="headerlink" title="不敏变换（UT）"></a>不敏变换（UT）</h2><p>基本思路：通过定义域上非均匀采样点的函数值进行加权求和</p>
 <p>UT变换的步骤：</p>
 <ol>
@@ -229,19 +231,46 @@
 <li>Compute Weighted Mean And Covariance of Transformed Sigma Points</li>
 </ol>
 <h3 id="Choose-Sigma-Points"><a href="#Choose-Sigma-Points" class="headerlink" title="Choose Sigma Points"></a>Choose Sigma Points</h3><p>$N$维的高斯分布选择$2N+1$个Sigma点$\chi^{1},\chi^{2}\cdots \chi^{2N+1}$，$w^{1}，w^{2}\cdots w^{2N+1}$表示对应的权值，要求Sigma点的均值方差收敛于原均值与方差</p>
-<p>$$<br>\begin{array}{l}<br>\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} \chi^{i}=E(\boldsymbol{x}) \<br>\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(\boldsymbol{x})\right]\left[\chi^{i}-E(\boldsymbol{x})\right]^{\mathrm{T}}=\operatorname{cov}(\boldsymbol{x})<br>\end{array}<br>$$</p>
-<p>令 ${Z}^{i}=\boldsymbol{g}\left(\chi^{i}\right), i=1, \cdots, 2N+1$ 表示在第 $i$ 个 $\operatorname{sigma}$ 点处的函数值。 $z$ 均值的 UT $\mathbb{近}$<br>似可以表示为<br>$$<br>\widehat{E(z)}=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} {Z}^{i}<br>$$</p>
-<p>z的协方差矩阵以及 z 和 x 的互协方差，通过 UT 近似计算可以得到<br>$$<br>\begin{aligned}<br>\widehat{\operatorname{cov}(z)} &amp;=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[Z^{i}-\widehat{E(z)}\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}} \<br>\widehat{\operatorname{cov}(x, z)} &amp;=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(x)\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}}<br>\end{aligned}<br>$$</p>
-<p>Sigma点的选择有很多种在这里选择，采用如下的方法：</p>
-<p>$$\chi^{i} = \boldsymbol{\mu} + \boldsymbol{\sigma}^{i}$$<br>其中</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}
+\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} \chi^{i}=E(\boldsymbol{x}) \\
+\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(\boldsymbol{x})\right]\left[\chi^{i}-E(\boldsymbol{x})\right]^{\mathrm{T}}=\operatorname{cov}(\boldsymbol{x})
+\end{array}</script><p>令 ${Z}^{i}=\boldsymbol{g}\left(\chi^{i}\right), i=1, \cdots, 2N+1$ 表示在第 $i$ 个 $\operatorname{sigma}$ 点处的函数值。 $z$ 均值的 UT $\mathbb{近}$<br>似可以表示为</p>
+<script type="math/tex; mode=display">
+\widehat{E(z)}=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} {Z}^{i}</script><p>z的协方差矩阵以及 z 和 x 的互协方差，通过 UT 近似计算可以得到</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\widehat{\operatorname{cov}(z)} &=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[Z^{i}-\widehat{E(z)}\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}} \\
+\widehat{\operatorname{cov}(x, z)} &=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(x)\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}}
+\end{aligned}</script><p>Sigma点的选择有很多种在这里选择，采用如下的方法：</p>
+<script type="math/tex; mode=display">\chi^{i} = \boldsymbol{\mu} + \boldsymbol{\sigma}^{i}</script><p>其中</p>
 <ul>
 <li>$\boldsymbol{\mu}=E(\boldsymbol{x})$</li>
 <li>$\boldsymbol{\sigma}^{1} = \boldsymbol{0}$，$[\boldsymbol{\sigma}^{2} \cdots \boldsymbol{\sigma}^{N+1}] = \boldsymbol{A}(\boldsymbol{\sigma}^{N+i+1}=-\boldsymbol{\sigma}^{i+1}, i=1, \cdots, N)$,$\boldsymbol{A}$是$(N+\kappa)\boldsymbol{\Sigma}$的Cholesky分解，即满足$\boldsymbol{A}\boldsymbol{A}^T=(N+\kappa)\boldsymbol{\Sigma}$</li>
 </ul>
-<p>$\chi^{i}$对应的权值为<br>$$<br>w^{i}=\left{\begin{array}{ll}<br>\kappa /(N+\kappa) &amp; i=1 \<br>0.5 /(N+\kappa) &amp; i=2, \cdots, 2 N+1<br>\end{array}\right.<br>$$</p>
-<p>用图像可以形象的表示出来(2维的情况)<br><img src="UKF%5Cv2-f796ba1537f34f03eb608cdc299254df_1440w.jpg"></p>
-<h2 id="不敏卡尔曼滤波算法"><a href="#不敏卡尔曼滤波算法" class="headerlink" title="不敏卡尔曼滤波算法"></a>不敏卡尔曼滤波算法</h2><p>(1) 确定 sigma 点 $\chi_{k-1}^{1}, \cdots, \chi_{k-1}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(2) 计算 sigma 点的转换 $\chi_{k}^{i}=f\left(\chi_{k-1}^{i}\right), i=1, \cdots, 2N+1$。<br>(3) 计算状态预测统计量<br>$$<br>\begin{array}{c}<br>\hat{\boldsymbol{x}}<em>{k \mid k-1}=\sum</em>{i=1}^{2N+1} w^{i} \chi_{k}^{i} \<br>\boldsymbol{P}<em>{k \mid k-1}=\boldsymbol{Q}</em>{k}+\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}<em>{k \mid k-1}\right)\left(\chi</em>{k}^{i}-\hat{\boldsymbol{x}}<em>{k \mid k-1}\right)^{\mathrm{T}}<br>\end{array}<br>$$<br>(4) 确定均值 $\hat{\boldsymbol{x}}</em>{k \mid k-1}$ 和方差 $\boldsymbol{P}<em>{k \mid k-1}$ 的 $\operatorname{sigma}$ 点 $\chi</em>{k}^{1}, \cdots, \chi_{k}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(5) 计算 sigma 点的转换 $\nu_{k}^{i}=\boldsymbol{h}\left(\chi_{k}^{i}\right), i=1, \cdots, 2N+1$。<br>(6)计算观测预测统计量<br>$$<br>\begin{array}{l}<br>\hat{\boldsymbol{y}}<em>{k \mid k-1}=\sum</em>{i=1}^{2N+1} w^{i} \boldsymbol{\nu}<em>{k}^{i} \<br>\boldsymbol{S}</em>{k}=\boldsymbol{R}<em>{k}+\sum</em>{i=1}^{2N+1} w^{i}\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}<em>{k \mid k-1}\right)\left(\nu</em>{k}^{i}-\hat{\boldsymbol{y}}<em>{k \mid k-1}\right)^{\mathrm{T}} \<br>\boldsymbol{\Psi}</em>{k}=\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}<em>{k \mid k-1}\right)\left(\nu</em>{k}^{i}-\hat{\boldsymbol{y}}<em>{k \mid k-1}\right)^{\mathrm{T}}<br>\end{array}<br>$$<br>(7) 计算后验均值和方差矩阵<br>$$<br>\begin{aligned}<br>\hat{\boldsymbol{x}}</em>{k} &amp;=\hat{\boldsymbol{x}}<em>{k \mid k-1}+\boldsymbol{\Psi}</em>{k} \boldsymbol{S}<em>{k}^{-1}\left(\boldsymbol{y}</em>{k}-\hat{\boldsymbol{y}}<em>{k \mid k-1}\right) \<br>\boldsymbol{P}</em>{k \mid k}&amp;= \boldsymbol{P}<em>{k \mid k-1}-\boldsymbol{\Psi}</em>{k} \boldsymbol{S}<em>{k}^{-1} \boldsymbol{\Psi}</em>{k}^{\mathrm{T}}<br>\end{aligned}<br>$$</p>
-
+<p>$\chi^{i}$对应的权值为</p>
+<script type="math/tex; mode=display">
+w^{i}=\left\{\begin{array}{ll}
+\kappa /(N+\kappa) & i=1 \\
+0.5 /(N+\kappa) & i=2, \cdots, 2 N+1
+\end{array}\right.</script><p>用图像可以形象的表示出来(2维的情况)<br><img src="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-f796ba1537f34f03eb608cdc299254df_1440w.jpg" alt></p>
+<h2 id="不敏卡尔曼滤波算法"><a href="#不敏卡尔曼滤波算法" class="headerlink" title="不敏卡尔曼滤波算法"></a>不敏卡尔曼滤波算法</h2><p>(1) 确定 sigma 点 $\chi_{k-1}^{1}, \cdots, \chi_{k-1}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(2) 计算 sigma 点的转换 $\chi_{k}^{i}=f\left(\chi_{k-1}^{i}\right), i=1, \cdots, 2N+1$。<br>(3) 计算状态预测统计量</p>
+<script type="math/tex; mode=display">
+\begin{array}{c}
+\hat{\boldsymbol{x}}_{k \mid k-1}=\sum_{i=1}^{2N+1} w^{i} \chi_{k}^{i} \\
+\boldsymbol{P}_{k \mid k-1}=\boldsymbol{Q}_{k}+\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)^{\mathrm{T}}
+\end{array}</script><p>(4) 确定均值 $\hat{\boldsymbol{x}}_{k \mid k-1}$ 和方差 $\boldsymbol{P}_{k \mid k-1}$ 的 $\operatorname{sigma}$ 点 $\chi_{k}^{1}, \cdots, \chi_{k}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(5) 计算 sigma 点的转换 $\nu_{k}^{i}=\boldsymbol{h}\left(\chi_{k}^{i}\right), i=1, \cdots, 2N+1$。<br>(6)计算观测预测统计量</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}
+\hat{\boldsymbol{y}}_{k \mid k-1}=\sum_{i=1}^{2N+1} w^{i} \boldsymbol{\nu}_{k}^{i} \\
+\boldsymbol{S}_{k}=\boldsymbol{R}_{k}+\sum_{i=1}^{2N+1} w^{i}\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)^{\mathrm{T}} \\
+\boldsymbol{\Psi}_{k}=\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)^{\mathrm{T}}
+\end{array}</script><p>(7) 计算后验均值和方差矩阵</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\hat{\boldsymbol{x}}_{k} &=\hat{\boldsymbol{x}}_{k \mid k-1}+\boldsymbol{\Psi}_{k} \boldsymbol{S}_{k}^{-1}\left(\boldsymbol{y}_{k}-\hat{\boldsymbol{y}}_{k \mid k-1}\right) \\
+\boldsymbol{P}_{k \mid k}&= \boldsymbol{P}_{k \mid k-1}-\boldsymbol{\Psi}_{k} \boldsymbol{S}_{k}^{-1} \boldsymbol{\Psi}_{k}^{\mathrm{T}}
+\end{aligned}</script>
     </div>
 
     
@@ -339,7 +368,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="贝叶斯推理贝叶斯定理$$p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}$$ 再次利用该式可以重写为 $$p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}$$ 通常称$p(\">
+  <meta name="description" content="贝叶斯推理贝叶斯定理 p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}再次利用该式可以重写为  p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}通常称$p(\mathbf{x">
 <meta property="og:type" content="article">
 <meta property="og:title" content="最优贝叶斯滤波">
 <meta property="og:url" content="https://example.com/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/index.html">
 <meta property="og:site_name" content="Bulijiojio Blog">
-<meta property="og:description" content="贝叶斯推理贝叶斯定理$$p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}$$ 再次利用该式可以重写为 $$p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}$$ 通常称$p(\">
+<meta property="og:description" content="贝叶斯推理贝叶斯定理 p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}再次利用该式可以重写为  p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}通常称$p(\mathbf{x">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-28T13:01:30.000Z">
 <meta property="article:modified_time" content="2021-04-01T13:48:24.190Z">
@@ -216,26 +216,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="贝叶斯推理"><a href="#贝叶斯推理" class="headerlink" title="贝叶斯推理"></a>贝叶斯推理</h1><h2 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h2><p>$$<br>p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}<br>$$</p>
-<p>再次利用该式可以重写为</p>
-<p>$$<br>p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}<br>$$</p>
-<p>通常称$p(\mathbf{x})$为先验分布，$p(\mathbf{y}|\mathbf{x})$为最大似然估计分布，$p(\mathbf{x}|\mathbf{y})$为后验分布。</p>
-<h2 id="目标跟踪中的贝叶斯递推"><a href="#目标跟踪中的贝叶斯递推" class="headerlink" title="目标跟踪中的贝叶斯递推"></a>目标跟踪中的贝叶斯递推</h2><p>$\mathbf{S}<em>k$为$k$时刻的广义目标状态。<br>联合概率密度函数$p(\mathbf{S}^k) =p(\mathbf{S}<em>0,\cdots, \mathbf{S}<em>k)$。<br>传感器输出$\mathbf{y}^{k}=(\mathbf{y}</em>{1}, \mathbf{y}</em>{2}, \cdots, \mathbf{y}</em>{k})$。</p>
+        <h1 id="贝叶斯推理"><a href="#贝叶斯推理" class="headerlink" title="贝叶斯推理"></a>贝叶斯推理</h1><h2 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h2><script type="math/tex; mode=display">
+p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}</script><p>再次利用该式可以重写为</p>
+<script type="math/tex; mode=display">
+p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}</script><p>通常称$p(\mathbf{x})$为先验分布，$p(\mathbf{y}|\mathbf{x})$为最大似然估计分布，$p(\mathbf{x}|\mathbf{y})$为后验分布。</p>
+<h2 id="目标跟踪中的贝叶斯递推"><a href="#目标跟踪中的贝叶斯递推" class="headerlink" title="目标跟踪中的贝叶斯递推"></a>目标跟踪中的贝叶斯递推</h2><p>$\mathbf{S}_k$为$k$时刻的广义目标状态。<br>联合概率密度函数$p(\mathbf{S}^k) =p(\mathbf{S}_0,\cdots, \mathbf{S}_k)$。<br>传感器输出$\mathbf{y}^{k}=(\mathbf{y}_{1}, \mathbf{y}_{2}, \cdots, \mathbf{y}_{k})$。</p>
 <p>由贝叶斯定理</p>
-<p>$$p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right) p\left(\mathbf{S}^{k}\right)}{p\left(\mathbf{y}^{k}\right)}$$</p>
-<p>归一化因子计算：</p>
-<p>$$p\left(\mathbf{y}^{k}\right)=\int_{\mathbf{S}<em>{k}} \cdots \int</em>{\mathbf{S}<em>{0}} p\left(\mathbf{y}^{k} \mid \mathbf{S}</em>{k}, \cdots, \mathbf{S}<em>{o}\right) p\left(\mathbf{S}</em>{k}, \cdots, \mathbf{S}<em>{o}\right) \mathrm{d} \mathbf{S}</em>{k} \cdots \mathrm{d} \mathbf{S}_{o}$$</p>
-<p>贝叶斯递推：</p>
-<p>$$<br>\begin{aligned}<br>&amp; p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right)=p\left(\mathbf{y}<em>{k}, \mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) \<br>&amp; =p\left(\mathbf{y}</em>{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) =p\left(\mathbf{y}<em>{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right)\<br>&amp; p\left(\mathbf{S}^{k}\right) =p\left(\mathbf{S}</em>{k}, \mathbf{S}^{k-1}\right)=p\left(\mathbf{S}<em>{k} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right) \<br>&amp; p\left(\mathbf{y}^{k}\right) =p\left(\mathbf{y}</em>{k}, \mathbf{y}^{k-1}\right)=p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right) p\left(\mathbf{y}^{k-1}\right)<br>\end{aligned}<br>$$</p>
-<p>带入</p>
-<p>$$p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}<em>{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}</em>{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)}\left{\frac{p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}^{k-1}\right)}\right}$$</p>
-<p>$$p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}<em>{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}</em>{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)$$</p>
-<p>$$p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}<em>{k} \mid \mathbf{S}</em>{k}\right)}{p\left(\mathbf{y}<em>{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}</em>{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)$$</p>
-<p>通过推导可以得到</p>
-<p>$$<br>p\left(\mathbf{S}<em>{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}</em>{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}<em>{k} \mid \mathbf{S}</em>{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k-1}\right)<br>$$</p>
-<p>即就是</p>
-<p>$$p\left(\mathbf{S}<em>{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}</em>{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}<em>{k} \mid \mathbf{S}</em>{k}\right) \int_{\mathbf{s}<em>{k-1}} p\left(\mathbf{S}</em>{k} \mid \mathbf{S}<em>{k-1}\right) p\left(\mathbf{S}</em>{k-1} \mid \mathbf{y}^{k-1}\right) \mathrm{d} \mathbf{S}_{k-1}$$</p>
-
+<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right) p\left(\mathbf{S}^{k}\right)}{p\left(\mathbf{y}^{k}\right)}</script><p>归一化因子计算：</p>
+<script type="math/tex; mode=display">p\left(\mathbf{y}^{k}\right)=\int_{\mathbf{S}_{k}} \cdots \int_{\mathbf{S}_{0}} p\left(\mathbf{y}^{k} \mid \mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) p\left(\mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) \mathrm{d} \mathbf{S}_{k} \cdots \mathrm{d} \mathbf{S}_{o}</script><p>贝叶斯递推：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right)=p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) \\
+& =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right)\\
+& p\left(\mathbf{S}^{k}\right) =p\left(\mathbf{S}_{k}, \mathbf{S}^{k-1}\right)=p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right) \\
+& p\left(\mathbf{y}^{k}\right) =p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1}\right)=p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right) p\left(\mathbf{y}^{k-1}\right)
+\end{aligned}</script><p>带入</p>
+<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)}\left\{\frac{p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}^{k-1}\right)}\right\}</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><p>通过推导可以得到</p>
+<script type="math/tex; mode=display">
+p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k-1}\right)</script><p>即就是</p>
+<script type="math/tex; mode=display">p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) \int_{\mathbf{s}_{k-1}} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}_{k-1} \mid \mathbf{y}^{k-1}\right) \mathrm{d} \mathbf{S}_{k-1}</script>
     </div>
 
     
@@ -333,7 +332,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
