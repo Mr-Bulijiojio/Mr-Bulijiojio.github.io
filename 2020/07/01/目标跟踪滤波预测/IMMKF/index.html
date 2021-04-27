@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="交互多模型滤波模型假定目标动态特性包含在以下模型集中：$$\boldsymbol{x}{k}&#x3D;\boldsymbol{f}{r_{k}}\left(\boldsymbol{x}{k-1}, \boldsymbol{u}{k}\right)+\boldsymbol{v}{r{k}}, \quad r_{k} \in{1,2, \cdots, d}$$$r_{k}$ 是在状态空间内 ${1,2, \c">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IMMKF">
+<meta property="og:url" content="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/index.html">
+<meta property="og:site_name" content="Bulijiojio Blog">
+<meta property="og:description" content="交互多模型滤波模型假定目标动态特性包含在以下模型集中：$$\boldsymbol{x}{k}&#x3D;\boldsymbol{f}{r_{k}}\left(\boldsymbol{x}{k-1}, \boldsymbol{u}{k}\right)+\boldsymbol{v}{r{k}}, \quad r_{k} \in{1,2, \cdots, d}$$$r_{k}$ 是在状态空间内 ${1,2, \c">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/IMMKF%5CIMMKFpos.png">
+<meta property="og:image" content="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/IMMKF%5CIMMKFmodelpdf.png">
+<meta property="article:published_time" content="2020-07-01T13:01:30.000Z">
+<meta property="article:modified_time" content="2021-04-01T13:44:25.390Z">
+<meta property="article:author" content="YXY">
+<meta property="article:tag" content="交互式多模型">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/IMMKF%5CIMMKFpos.png">
+
+<link rel="canonical" href="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>IMMKF | Bulijiojio Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Bulijiojio Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">日常摸鱼划水的虾皮--如果公式不能正常显示请使用Chrome浏览器并安装Tex All the Things插件</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IMMKF
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-01 21:01:30" itemprop="dateCreated datePublished" datetime="2020-07-01T21:01:30+08:00">2020-07-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-01 21:44:25" itemprop="dateModified" datetime="2021-04-01T21:44:25+08:00">2021-04-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="交互多模型"><a href="#交互多模型" class="headerlink" title="交互多模型"></a>交互多模型</h1><h2 id="滤波模型"><a href="#滤波模型" class="headerlink" title="滤波模型"></a>滤波模型</h2><p>假定目标动态特性包含在以下模型集中：<br>$$<br>\boldsymbol{x}<em>{k}=\boldsymbol{f}</em>{r_{k}}\left(\boldsymbol{x}<em>{k-1}, \boldsymbol{u}</em>{k}\right)+\boldsymbol{v}<em>{r</em>{k}}, \quad r_{k} \in{1,2, \cdots, d}<br>$$<br>$r_{k}$ 是在状态空间内 ${1,2, \cdots, d}$ 满足一致性离散马尔可夫链的随机变量。</p>
+<p>目标状态的后验概率密度 $p\left(\boldsymbol{x}<em>{k} \mid \boldsymbol{y}^{k}\right)$ 通过对联合概率密度各分量求和得<br>$$<br>p\left(\boldsymbol{x}</em>{k} \mid \boldsymbol{y}^{k}\right)=\sum_{i=1}^{d} p\left(\boldsymbol{x}<em>{k}, r</em>{k}=i \mid \boldsymbol{y}^{k}\right)<br>$$<br>利用条件概率引理，上述方程右侧的联合概率密度可以分解为两项之积，即<br>$$<br>p\left(\boldsymbol{x}<em>{k}, r</em>{k}=i \mid \boldsymbol{y}^{k}\right)=p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)<br>$$<br>令 $\mu_{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right),$ 后验概率密度可以表示为</p>
+<p>$$<br>p\left(\boldsymbol{x}<em>{k} \mid \boldsymbol{y}^{k}\right)=\sum</em>{i=1}^{d} p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k}\right) \mu_{k \mid k}(i)<br>$$</p>
+<p>将 $\boldsymbol{y}^{k}$ 展开为 $\left{\boldsymbol{y}<em>{k}, \boldsymbol{y}^{k-1}\right}$,利用贝叶斯理论可以得到上述方程右侧求和第一项的递推式:<br>$$<br>\begin{aligned}<br>p\left(\boldsymbol{x}</em>{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right) &amp;=p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}<em>{k}, \boldsymbol{y}^{k-1}\right) \<br>&amp;=\frac{p\left(\boldsymbol{y}</em>{k} \mid \boldsymbol{x}<em>{k}, r</em>{k}=i, \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right)} p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right)<br>\end{aligned}<br>$$<br>式中: $p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right)$ 为预测概率密度 $; p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{x}</em>{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right)$ 为似然函数 ; $p(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}$ ) 为归一化因子。 式(3.45)的求和分量第二项 $\mu_{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)$ 也可以通过递推计算。同 样将 $\boldsymbol{y}^{k}$ 展开为 $\left{\boldsymbol{y}<em>{k}, \boldsymbol{y}^{k-1}\right},$ 利用贝叶斯理论可得<br>$$<br>\begin{aligned}<br>\mu</em>{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}<em>{k}, \boldsymbol{y}^{k-1}\right)=\frac{p\left(\boldsymbol{y}</em>{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{y}^{k-1}\right)}<br>\end{aligned}<br>$$<br>令 $p\left(r</em>{k}=i \mid \mathbf{y}^{k-1}\right)=\boldsymbol{\mu}_{k \mid k-1}(i),$ 条件模型概率可表示为</p>
+<p>$$<br>\begin{aligned}<br>\mu_{k \mid k}(i)=\frac{p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right) \mu_{k \mid k-1}(i)}{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)}<br>\end{aligned}<br>$$</p>
+<p>式中: $\mu_{k \mid k-1}(i)$ 为模型预测概率 $; p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right)$ 为似然函数 $; p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)$ 为归一<br>化因子。</p>
+<h3 id="某一模型的状态的预测概率密度和预测的模型概率"><a href="#某一模型的状态的预测概率密度和预测的模型概率" class="headerlink" title="某一模型的状态的预测概率密度和预测的模型概率"></a>某一模型的状态的预测概率密度和预测的模型概率</h3><p>$$<br>\begin{aligned}<br>p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right) &amp;=\int_{\boldsymbol{x}<em>{k-1}} p\left(\boldsymbol{x}</em>{k} \mid \boldsymbol{x}<em>{k-1}, r</em>{k}=i, \boldsymbol{y}^{k-1}\right) \sum_{j=1}^{d} p\left(\boldsymbol{x}<em>{k-1} \mid r</em>{k-1}\right.\<br>&amp;\left.=j, \boldsymbol{y}^{k-1}\right) \mu_{k-11 k}^{j i} \mathrm{d} \boldsymbol{x}<em>{k-1} \<br>&amp;=\int</em>{\boldsymbol{x}<em>{k-1}} N\left(\boldsymbol{x}</em>{k} ; \boldsymbol{F}<em>{i} \boldsymbol{x}</em>{k-1}+\boldsymbol{u}<em>{i}, \boldsymbol{Q}</em>{i}\right) N\left(\boldsymbol{x}<em>{k-1} ; \hat{\boldsymbol{x}}</em>{k-1 \mid k-1}^{0 i}, \boldsymbol{P}<em>{k-1 \mid k-1}^{0 i}\right) \mathrm{d} \boldsymbol{x}</em>{k-1} \<br>&amp;=N\left(\boldsymbol{x}<em>{k} ; \hat{\boldsymbol{x}}</em>{k \mid k-1}^{i}, \boldsymbol{P}<em>{k \mid k-1}^{i}\right)<br>\end{aligned}<br>$$<br>其中，均值和协方差分别为<br>$$<br>\begin{aligned}<br>\hat{\boldsymbol{x}}</em>{k \mid k-1}^{i} =\boldsymbol{F}<em>{\boldsymbol{i}} \hat{\boldsymbol{x}}</em>{k-1 \mid k-1}^{0 i}+\boldsymbol{u}<em>{i} \<br>\boldsymbol{P}</em>{k \mid k-1}^{i}= \boldsymbol{F}<em>{i} \boldsymbol{P}</em>{k-1 \mid k-1}^{0 i} \boldsymbol{F}<em>{i}^{\mathrm{T}}+\boldsymbol{Q}</em>{i}<br>\end{aligned}<br>$$</p>
+<p>预测模型概率 $\mu_{k \mid k-1}(i)$ 可以展开为<br>$$<br>\begin{aligned}<br>\mu_{k \mid k-1}(i) &amp;=p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right) \<br>&amp;=\sum_{j=1}^{d} p\left(r_{k}=i \mid r_{k-1}=j, \boldsymbol{y}^{k-1}\right) p\left(r_{k-1}=j \mid \boldsymbol{y}^{k-1}\right) \<br>&amp;=\sum_{j=1}^{d} \Gamma_{j i} p\left(r_{k-1}=j \mid \boldsymbol{y}^{k-1}\right) \<br>&amp;=\sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)<br>\end{aligned}<br>$$</p>
+<h3 id="似然函数"><a href="#似然函数" class="headerlink" title="似然函数"></a>似然函数</h3><p>$$<br>p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{x}</em>{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right)=p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{x}</em>{k}\right)=N\left(\boldsymbol{y}<em>{k} ; \boldsymbol{H} \boldsymbol{x}</em>{k}, \boldsymbol{R}<em>{k}\right)<br>$$<br>令$\lambda</em>{k}(i)=p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right)$则 $\lambda_{k}(i)=N\left(\boldsymbol{y}<em>{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}</em>{k-1 \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}</em>{k}\right)$</p>
+<h3 id="归一化因数"><a href="#归一化因数" class="headerlink" title="归一化因数"></a>归一化因数</h3><p>$$<br>\begin{aligned}<br>p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{y}^{k-1}\right) &amp;=\sum</em>{i=1}^{d} p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right) \<br>&amp;=\sum_{i=1}^{d} \lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)<br>\end{aligned}<br>$$</p>
+<h3 id="条件概率密度和条件模型概率"><a href="#条件概率密度和条件模型概率" class="headerlink" title="条件概率密度和条件模型概率"></a>条件概率密度和条件模型概率</h3><p>条件概率密度展开为<br>$$<br>\begin{aligned}<br>p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k}\right) &amp;=\frac{p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{x}</em>{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \mathbf{y}^{k-1}\right)}{p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \mathbf{y}^{k-1}\right)} \<br>&amp;=\frac{N\left(\boldsymbol{y}<em>{k} ; \boldsymbol{H} \boldsymbol{x}</em>{k}, \boldsymbol{R}<em>{k}\right) N\left(\boldsymbol{x}</em>{k} ; \hat{\boldsymbol{x}}<em>{k \mid k-1}^{i}, \boldsymbol{P}</em>{k \mid k-1}^{i}\right)}{N\left(\boldsymbol{y}<em>{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}</em>{k \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}</em>{k}\right)}<br>\end{aligned}<br>$$<br>条件概率密度可以近似为高斯分布, 即 $p\left(\boldsymbol{x}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k}\right)=N\left(\boldsymbol{x}<em>{k} ; \hat{\boldsymbol{x}}</em>{k \mid k}^{i}, \boldsymbol{P}<em>{k \mid k}^{i}\right),$ 其<br>均值和协方差为<br>$$<br>\begin{aligned}<br>\hat{\boldsymbol{x}}</em>{k \mid k}^{i}=\hat{\boldsymbol{x}}<em>{k \mid k-1}^{i}+\boldsymbol{P}</em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}</em>{k}\right)^{-1}\left(\boldsymbol{y}<em>{k}-\boldsymbol{H} \hat{\boldsymbol{x}}</em>{k \mid k-1}^{i}\right) \<br>\boldsymbol{P}<em>{k \mid k}^{i}=\boldsymbol{P}</em>{k \mid k-1}^{i}-\boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}</em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}<em>{k}\right)^{-1} \boldsymbol{H} \boldsymbol{P}</em>{k \mid k-1}^{i}<br>\end{aligned}<br>$$<br>条件模型概率 $p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)$ 为<br>$$<br>\begin{aligned}<br>\mu_{k \mid k}(i)=\frac{p\left(\boldsymbol{y}<em>{k} \mid r</em>{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}<em>{k} \mid \boldsymbol{y}^{k-1}\right)}<br>\end{aligned}<br>$$<br>经简化可得<br>$$<br>\begin{aligned}<br>\mu</em>{k \mid k}(i)=\frac{\lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)}{\sum_{l=1}^{d} \lambda_{k}(l) \sum_{m=1}^{d} \Gamma_{m l} \mu_{k-1 \mid k-1}(m)}<br>\end{aligned}<br>$$</p>
+<h2 id="IMM迭代计算方程"><a href="#IMM迭代计算方程" class="headerlink" title="IMM迭代计算方程"></a>IMM迭代计算方程</h2><ol>
+<li><strong>for 对于每一个模型 i do</strong><br>模型预测概率<br>$$<br>\mu_{k \mid k-1}(i)=p\left(r_{k}=i \mid y^{k-1}\right)=\sum_{j=1}^{d} \Gamma_{ji} \mu_{k-1 \mid k-1}(j)<br>$$<br>混合模型概率<br>$$<br>\begin{aligned}<br>\mu_{k \mid k-1}^{j \mid i}=p\left(r_{k-1}=j \mid r_{k}=i, y^{k-1}\right)=\frac{\Gamma_{ji} \mu_{k-1 \mid k-1}(j)}{\sum_{m=1}^{d} \Gamma_{m i} \mu_{k-1 \mid k-1}(m)}<br>\end{aligned}<br>$$<br>混合状态和协方差<br>$$<br>\hat{\boldsymbol{x}}<em>{k-1 \mid k-1}^{0 i}=\sum</em>{j=1}^{d}\mu_{k \mid k-1}^{j \mid i}\hat{\boldsymbol{x}}<em>{k-1 \mid k-1}^{j}<br>$$<br>$$<br>\boldsymbol{P}</em>{k-1 \mid k-1}^{0 i}=\sum_{j=1}^{d} \boldsymbol{\mu}<em>{k \mid k-1}^{j \mid i}\left{\boldsymbol{P}</em>{k-1 \mid k-1}^{j}+\left[\hat{\boldsymbol{x}}<em>{k-1 \mid k-1}^{j}-\boldsymbol{x}</em>{k-1 \mid k-1}^{0 i}\right]\left[\hat{\boldsymbol{x}}<em>{k-1 \mid k-1}^{j}-\hat{\boldsymbol{x}}</em>{k-1 \mid k-1}^{0 i}\right]^{\mathrm{T}}\right}<br>$$</li>
+</ol>
+<p><strong>end for</strong><br>2. <strong>for 对于每一个模型 i do</strong><br>预测目标状态<br>$$<br>\hat{\boldsymbol{x}}<em>{k \mid k-1}^{i}=\boldsymbol{F}</em>{i} \hat{\boldsymbol{x}}<em>{k-1 \mid k-1}^{0 i}+\boldsymbol{u}</em>{i}<br>$$<br>预测协方差<br>$$<br>\boldsymbol{P}<em>{k \mid k-1}^{i}=\boldsymbol{F}</em>{i} \boldsymbol{P}<em>{k-1 \mid k-1}^{0 i} \boldsymbol{F}</em>{i}^{T}+\boldsymbol{Q}<em>{i}<br>$$<br>状态更新<br>$$<br>\hat{\boldsymbol{x}}</em>{k \mid k}^{i}=\hat{\boldsymbol{x}}<em>{k \mid k-1}^{i}+\boldsymbol{P}</em>{k \mid k-1}^{i} \boldsymbol{H}^{T}\left(\boldsymbol{H} \boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{T}+\boldsymbol{R}</em>{k}\right)^{-1}\left(\boldsymbol{y}<em>{k}-\boldsymbol{H} \hat{\boldsymbol{x}}</em>{k \mid k-1}^{i}\right)<br>$$<br>协方差更新<br>$$<br>\boldsymbol{P}<em>{k \mid k}^{i}=\boldsymbol{P}</em>{k \mid k-1}^{i}-\boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}</em>{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}<em>{k}\right)^{-1} \boldsymbol{H} \boldsymbol{P}</em>{k \mid k-1}^{i}<br>$$<br>模型似然函数<br>$$<br>\lambda_{k}(i)=N\left(\boldsymbol{y}<em>{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}</em>{k \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}<em>{k \mid k-1}^{i} \boldsymbol{H}^{T}+\boldsymbol{R}</em>{k}\right)<br>$$<br><strong>end for</strong><br>模型概率：<br>$$<br>\begin{aligned}<br>\mu_{k \mid k}(i)=\frac{\lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)}{\sum_{l=1}^{d} \lambda_{k}(l) \sum_{m=1}^{d} \Gamma_{m l} \mu_{k-1 \mid k-1}(m)}<br>\end{aligned}<br>$$<br>条件均值：<br>$$<br>\hat{\boldsymbol{x}}<em>{k \mid k}=\sum</em>{i=1}^{d} \hat{\boldsymbol{x}}<em>{k \mid k}^{i} \boldsymbol{\mu}</em>{k \mid k}(i)<br>$$<br>条件协方差：<br>$$<br>\boldsymbol{P}<em>{k \mid k}=\sum</em>{i=1}^{d}\left[\boldsymbol{P}<em>{k \mid k}^{i}+\left(\hat{\boldsymbol{x}}</em>{k \mid k}-\hat{\boldsymbol{x}}<em>{k \mid k}^{i}\right)\left(\hat{\boldsymbol{x}}</em>{k \mid k}-\hat{\boldsymbol{x}}<em>{k \mid k}^{i}\right)^{\mathrm{T}}\right] \boldsymbol{\mu}</em>{k \mid k}(i)<br>$$</p>
+<h2 id="仿真"><a href="#仿真" class="headerlink" title="仿真"></a>仿真</h2><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line">clc;close <span class="built_in">all</span>;clear <span class="built_in">all</span>;</span><br><span class="line"></span><br><span class="line">simTime<span class="built_in">=</span><span class="number">100</span>;      <span class="comment">%仿真迭代次数</span></span><br><span class="line">T<span class="built_in">=</span><span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">d <span class="built_in">=</span> <span class="number">3</span>;<span class="comment">%模型数</span></span><br><span class="line"></span><br><span class="line">w2<span class="built_in">=</span><span class="number">3</span>*<span class="number">2</span>*pi/<span class="number">360</span>;     <span class="comment">%模型2转弯率3度</span></span><br><span class="line">w3<span class="built_in">=</span>-<span class="number">3</span>*<span class="number">2</span>*pi/<span class="number">360</span>;    <span class="comment">%模型3转弯率-3度</span></span><br><span class="line">H<span class="built_in">=</span>[<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>;<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>];                      <span class="comment">%模型量测矩阵</span></span><br><span class="line">G<span class="built_in">=</span>[T^<span class="number">2</span>/<span class="number">2</span>,<span class="number">0</span>;T,<span class="number">0</span>;<span class="number">0</span>,T^<span class="number">2</span>/<span class="number">2</span>;<span class="number">0</span>,T];              <span class="comment">%模型过程噪声加权矩阵</span></span><br><span class="line">r<span class="built_in">=</span><span class="number">100</span>;                                 <span class="comment">%20 2000</span></span><br><span class="line">R<span class="built_in">=</span>[r,<span class="number">0</span>;<span class="number">0</span>,r];                           <span class="comment">%模型量测噪声协方差矩阵</span></span><br><span class="line">Q<span class="built_in">=</span>G*[<span class="number">10</span>,<span class="number">0</span>;<span class="number">0</span>,<span class="number">10</span>]*G<span class="string">&#x27;;                      %模型过程噪声协方差矩阵</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,1)=[1,T,0,0;0,1,0,0;0,0,1,T;0,0,0,1];     %模型1状态转移矩阵</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,2)=[1,sin(w2*T)/w2,0,(cos(w2*T)-1)/w2;</span></span><br><span class="line"><span class="string">    0,cos(w2*T),0,sin(w2*T);</span></span><br><span class="line"><span class="string">    0,(1-cos(w2*T))/w2,1,sin(w2*T)/w2;</span></span><br><span class="line"><span class="string">    0,-sin(w2*T),0,cos(w2*T)];            %模型2状态转移矩阵 左转弯</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,3)=[1,sin(w3*T)/w3,0,(cos(w3*T)-1)/w3;</span></span><br><span class="line"><span class="string">    0,cos(w3*T),0,sin(w3*T);</span></span><br><span class="line"><span class="string">    0,(1-cos(w3*T))/w3,1,sin(w3*T)/w3;</span></span><br><span class="line"><span class="string">    0,-sin(w3*T),0,cos(w3*T)];            %模型3状态转移矩阵 右转弯</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">x = zeros(4,simTime);</span></span><br><span class="line"><span class="string">z_k = zeros(2,simTime);         %含噪声量测数据</span></span><br><span class="line"><span class="string">measureNoise = zeros(2,simTime);</span></span><br><span class="line"><span class="string">measureNoise = sqrt(R)*randn(2,simTime);  %产生量测噪声</span></span><br><span class="line"><span class="string">x(:,1)=[1000,200,1000,200]&#x27;</span>;</span><br><span class="line">z_k(:,<span class="number">1</span>)<span class="built_in">=</span>H*x(:,<span class="number">1</span>)+measureNoise(:,<span class="number">1</span>);</span><br><span class="line">for a<span class="built_in">=</span><span class="number">2</span>:simTime</span><br><span class="line">    <span class="built_in">if</span> (a&gt;<span class="built_in">=</span><span class="number">20</span>)&amp;&amp;(a<span class="built_in">&lt;=</span><span class="number">40</span>) </span><br><span class="line">        x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">2</span>)*x(:,a-<span class="number">1</span>);      <span class="comment">%20--40s左转 </span></span><br><span class="line">    elseif (a&gt;<span class="built_in">=</span><span class="number">60</span>)&amp;&amp;(a<span class="built_in">&lt;=</span><span class="number">80</span>) </span><br><span class="line">       x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">3</span>)*x(:,a-<span class="number">1</span>);        <span class="comment">%60--80s右转 </span></span><br><span class="line">    <span class="built_in">else</span></span><br><span class="line">        x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">1</span>)*x(:,a-<span class="number">1</span>);      <span class="comment">%匀速直线运动</span></span><br><span class="line">    end</span><br><span class="line">z_k(:,a)<span class="built_in">=</span>H*x(:,a)+measureNoise(:,a);</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">xkki(:,<span class="number">1</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型1IMM算法状态估计值</span></span><br><span class="line">xkki(:,<span class="number">2</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型2IMM算法状态估计值</span></span><br><span class="line">xkki(:,<span class="number">3</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型3IMM算法状态估计值</span></span><br><span class="line"></span><br><span class="line">xkk <span class="built_in">=</span> zeros(<span class="number">4</span>,simTime);      <span class="comment">%IMM算法模型综合状态估计值</span></span><br><span class="line">pkk<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>,simTime);      <span class="comment">%IMM算法模型综合状态协方差矩阵</span></span><br><span class="line">pkki(:,:,<span class="number">1</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">pkki(:,:,<span class="number">2</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">pkki(:,:,<span class="number">3</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);      <span class="comment">%IMM算法各模型协方差矩阵</span></span><br><span class="line"></span><br><span class="line">xkk(:,<span class="number">1</span>)<span class="built_in">=</span>x(:,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">Sigmaji<span class="built_in">=</span>[<span class="number">0.9</span>,<span class="number">0.05</span>,<span class="number">0.05</span>;</span><br><span class="line">         <span class="number">0.1</span>,<span class="number">0.8</span>,<span class="number">0.1</span>;</span><br><span class="line">         <span class="number">0.05</span>,<span class="number">0.15</span>,<span class="number">0.8</span>];    <span class="comment">%模型转移概率矩阵</span></span><br><span class="line"></span><br><span class="line">ukk<span class="built_in">=</span>zeros(<span class="number">3</span>,simTime);</span><br><span class="line">ukk(:,<span class="number">1</span>)<span class="built_in">=</span>[<span class="number">0.3</span> <span class="number">0.3</span> <span class="number">0.4</span>]<span class="string">&#x27;;  %IMM算法模型概率</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">for t=1:simTime-1</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    %第一步Interacting（只针对IMM算法）</span></span><br><span class="line"><span class="string">    ukk_1=Sigmaji&#x27;</span>*ukk(:,t);</span><br><span class="line">    </span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        uji(:,i)<span class="built_in">=</span>(<span class="number">1</span>/ukk_1(i))*Sigmaji(:,i).*ukk(:,t);<span class="comment">%计算模型混合概率     </span></span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    <span class="comment">% 计算各模型滤波初始化条件</span></span><br><span class="line">    <span class="comment">% 各模型滤波初始状态</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        x0(:,i) <span class="built_in">=</span> xkki * uji(:,i);</span><br><span class="line">    end </span><br><span class="line">    </span><br><span class="line">    <span class="comment">%各模型滤波初始状态协方差矩阵</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        temp <span class="built_in">=</span> zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">        for k <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">            temp <span class="built_in">=</span> temp + pkki(:,:,k)+(xkki(:,i)-x0(:,i))*(xkki(:,i)-x0(:,i))<span class="string">&#x27;*uji(k,i);</span></span><br><span class="line"><span class="string">        end</span></span><br><span class="line"><span class="string">        P0(:,:,i) = temp;  </span></span><br><span class="line"><span class="string">    end</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    % kalman滤波并且计算似然函数值</span></span><br><span class="line"><span class="string">    for i = 1:d</span></span><br><span class="line"><span class="string">        [xkki(:,i),pkki(:,:,i),xkk_1,pkk_1] = Kalman(z_k(:,t),x0(:,i),F(:,:,i),H,P0(:,:,i),Q,R);</span></span><br><span class="line"><span class="string">        lambda(i) = (1/sqrt(abs(2*pi*(det(H*pkk_1*H&#x27;</span>+R)))))*exp((-<span class="number">1</span>/<span class="number">2</span>)*((z_k(:,t)-H*xkk_1)<span class="string">&#x27;*inv(H*pkk_1*H&#x27;</span>+R)*(z_k(:,t)-H*xkk_1)));</span><br><span class="line">    end</span><br><span class="line">    lambda <span class="built_in">=</span> lambda/sum(lambda);</span><br><span class="line"><span class="comment">%     条件模型概率</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        ukk(i,t+<span class="number">1</span>) <span class="built_in">=</span> lambda(i) * ukk_1(i)./lambda*ukk_1;</span><br><span class="line">    end</span><br><span class="line">    ukk(:,t+<span class="number">1</span>) <span class="built_in">=</span> ukk(:,t+<span class="number">1</span>)/sum(ukk(:,t+<span class="number">1</span>));</span><br><span class="line"><span class="comment">%     ukk(:,t+1) = 1/(lambda*ukk_1).*lambda&#x27;.*ukk_1;</span></span><br><span class="line">    xkk(:,t+<span class="number">1</span>) <span class="built_in">=</span> xkki * ukk(:,t+<span class="number">1</span>);</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">grid on</span><br><span class="line">plot(x(<span class="number">1</span>,:),x(<span class="number">3</span>,:));</span><br><span class="line">plot(xkk(<span class="number">1</span>,:),xkk(<span class="number">3</span>,:));</span><br><span class="line">plot(z_k(<span class="number">1</span>,:),z_k(<span class="number">2</span>,:));</span><br><span class="line">xlabel(<span class="string">&#x27;x axis(m)&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;y axis(m)&#x27;</span>);</span><br><span class="line">legend(<span class="string">&#x27;真实值&#x27;</span>,<span class="string">&#x27;预测值&#x27;</span>,<span class="string">&#x27;测量值&#x27;</span>);</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">grid on</span><br><span class="line">plot(ukk(<span class="number">1</span>,:),<span class="string">&#x27;k:&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(ukk(<span class="number">2</span>,:),<span class="string">&#x27;r-.&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(ukk(<span class="number">3</span>,:),<span class="string">&#x27;b--&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">title(<span class="string">&#x27;IMM模型概率曲线&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;次数序号(s)&#x27;</span>); ylabel(<span class="string">&#x27;模型概率&#x27;</span>);</span><br><span class="line">legend(<span class="string">&#x27;模型1&#x27;</span>,<span class="string">&#x27;模型2&#x27;</span>,<span class="string">&#x27;模型3&#x27;</span>);</span><br><span class="line"></span><br><span class="line">function [x_est,P_k_k,x_pre,P] <span class="built_in">=</span> Kalman(z_k,x_est_k_minus1,F,H,P_k,Q,R)</span><br><span class="line">   x_pre <span class="built_in">=</span> F*x_est_k_minus1;</span><br><span class="line">   P <span class="built_in">=</span> F*P_k*F<span class="string">&#x27; + Q;</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   z_pre = H*x_pre;</span></span><br><span class="line"><span class="string">   S = H*P*H&#x27;</span> + R;</span><br><span class="line">   K <span class="built_in">=</span> P*H<span class="string">&#x27;/(S);</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   x_est = x_pre + K*(z_k - z_pre);</span></span><br><span class="line"><span class="string">   P_k_k = (eye(size(K*H,1))-K*H)*P;</span></span><br><span class="line"><span class="string">end</span></span><br></pre></td></tr></table></figure>
+<p><img src="IMMKF%5CIMMKFpos.png"><br><img src="IMMKF%5CIMMKFmodelpdf.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%A4%9A%E6%A8%A1%E5%9E%8B/" rel="tag"># 交互式多模型</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/" rel="prev" title="UKF">
+      <i class="fa fa-chevron-left"></i> UKF
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/" rel="next" title="概率最邻近数据关联算法">
+      概率最邻近数据关联算法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E5%A4%9A%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">交互多模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BB%A4%E6%B3%A2%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">滤波模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%90%E4%B8%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%8A%B6%E6%80%81%E7%9A%84%E9%A2%84%E6%B5%8B%E6%A6%82%E7%8E%87%E5%AF%86%E5%BA%A6%E5%92%8C%E9%A2%84%E6%B5%8B%E7%9A%84%E6%A8%A1%E5%9E%8B%E6%A6%82%E7%8E%87"><span class="nav-number">1.1.1.</span> <span class="nav-text">某一模型的状态的预测概率密度和预测的模型概率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%BC%E7%84%B6%E5%87%BD%E6%95%B0"><span class="nav-number">1.1.2.</span> <span class="nav-text">似然函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%92%E4%B8%80%E5%8C%96%E5%9B%A0%E6%95%B0"><span class="nav-number">1.1.3.</span> <span class="nav-text">归一化因数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E6%A6%82%E7%8E%87%E5%AF%86%E5%BA%A6%E5%92%8C%E6%9D%A1%E4%BB%B6%E6%A8%A1%E5%9E%8B%E6%A6%82%E7%8E%87"><span class="nav-number">1.1.4.</span> <span class="nav-text">条件概率密度和条件模型概率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IMM%E8%BF%AD%E4%BB%A3%E8%AE%A1%E7%AE%97%E6%96%B9%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">IMM迭代计算方程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BF%E7%9C%9F"><span class="nav-number">1.3.</span> <span class="nav-text">仿真</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">YXY</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Mr-Bulijiojio" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Mr-Bulijiojio" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/frompyrmaidinside@gmail.com" title="E-Mail → frompyrmaidinside@gmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YXY</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
