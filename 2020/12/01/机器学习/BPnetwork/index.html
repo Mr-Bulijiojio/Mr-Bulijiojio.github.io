@@ -20,21 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="贝叶斯推理贝叶斯定理 p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}再次利用该式可以重写为  p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}通常称$p(\mathbf{x">
+  <meta name="description" content="Definationdesired output $\boldsymbol{d}\in \mathbb{R}^{1\times 1}$ 1st laywer input  $\boldsymbol{x}^{(1)}\in \mathbb{R}^{n\times 1}$ 1st laywer weight $\boldsymbol{W}^{(1)}\in \mathbb{R}^{m\times n}">
 <meta property="og:type" content="article">
-<meta property="og:title" content="最优贝叶斯滤波">
-<meta property="og:url" content="https://example.com/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/index.html">
+<meta property="og:title" content="BP-Network">
+<meta property="og:url" content="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/index.html">
 <meta property="og:site_name" content="Bulijiojio Blog">
-<meta property="og:description" content="贝叶斯推理贝叶斯定理 p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}再次利用该式可以重写为  p(\mathbf{x}|\mathbf{y} ) &#x3D; \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}通常称$p(\mathbf{x">
+<meta property="og:description" content="Definationdesired output $\boldsymbol{d}\in \mathbb{R}^{1\times 1}$ 1st laywer input  $\boldsymbol{x}^{(1)}\in \mathbb{R}^{n\times 1}$ 1st laywer weight $\boldsymbol{W}^{(1)}\in \mathbb{R}^{m\times n}">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-06-28T13:01:30.000Z">
-<meta property="article:modified_time" content="2021-04-01T13:48:24.190Z">
+<meta property="og:image" content="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/BPfit.png">
+<meta property="og:image" content="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/BPfiterror.png">
+<meta property="article:published_time" content="2020-12-01T13:56:47.000Z">
+<meta property="article:modified_time" content="2021-05-02T08:51:09.988Z">
 <meta property="article:author" content="YXY">
-<meta property="article:tag" content="贝叶斯定理">
-<meta property="article:tag" content="贝叶斯递推">
+<meta property="article:tag" content="脉冲多普勒">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/BPfit.png">
 
-<link rel="canonical" href="https://example.com/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/">
+<link rel="canonical" href="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/">
 
 
 <script id="page-configurations">
@@ -47,7 +49,7 @@
   };
 </script>
 
-  <title>最优贝叶斯滤波 | Bulijiojio Blog</title>
+  <title>BP-Network | Bulijiojio Blog</title>
   
 
 
@@ -163,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -176,7 +178,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          最优贝叶斯滤波
+          BP-Network
         </h1>
 
         <div class="post-meta">
@@ -186,14 +188,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-06-28 21:01:30" itemprop="dateCreated datePublished" datetime="2020-06-28T21:01:30+08:00">2020-06-28</time>
+              <time title="创建时间：2020-12-01 21:56:47" itemprop="dateCreated datePublished" datetime="2020-12-01T21:56:47+08:00">2020-12-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-01 21:48:24" itemprop="dateModified" datetime="2021-04-01T21:48:24+08:00">2021-04-01</time>
+                <time title="修改时间：2021-05-02 16:51:09" itemprop="dateModified" datetime="2021-05-02T16:51:09+08:00">2021-05-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -201,7 +203,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
+                  <a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a>
                 </span>
             </span>
 
@@ -216,25 +218,66 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="贝叶斯推理"><a href="#贝叶斯推理" class="headerlink" title="贝叶斯推理"></a>贝叶斯推理</h1><h2 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h2><script type="math/tex; mode=display">
-p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}</script><p>再次利用该式可以重写为</p>
+        <h3 id="Defination"><a href="#Defination" class="headerlink" title="Defination"></a>Defination</h3><p>desired output $\boldsymbol{d}\in \mathbb{R}^{1\times 1}$</p>
+<p>1st laywer input  $\boldsymbol{x}^{(1)}\in \mathbb{R}^{n\times 1}$</p>
+<p>1st laywer weight $\boldsymbol{W}^{(1)}\in \mathbb{R}^{m\times n}$</p>
+<p>1st laywer bias $\boldsymbol{b}^{(1)}\in \mathbb{R}^{m\times 1}$</p>
+<p>1st laywer output $\boldsymbol{z}^{(1)}\in \mathbb{R}^{m\times 1}$</p>
+<p>2st laywer input  $\boldsymbol{x}^{(2)}\in \mathbb{R}^{m\times 1}$</p>
+<p>2nd laywer weight $\boldsymbol{W}^{(2)}\in \mathbb{R}^{1\times m}$</p>
+<p>2nd laywer bias $\boldsymbol{b}^{(2)}\in \mathbb{R}^{1\times 1}$</p>
+<p>2st laywer output $\boldsymbol{z}^{(2)}\in \mathbb{R}^{1\times 1}$</p>
+<p>output $\boldsymbol{y} \in \mathbb{R}^{1\times 1}$</p>
+<h3 id="Activation-function"><a href="#Activation-function" class="headerlink" title="Activation function:"></a>Activation function:</h3><ol>
+<li><p>sigmod</p>
 <script type="math/tex; mode=display">
-p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}</script><p>通常称$p(\mathbf{x})$为先验分布，$p(\mathbf{y}|\mathbf{x})$为最大似然估计分布，$p(\mathbf{x}|\mathbf{y})$为后验分布。</p>
-<h2 id="目标跟踪中的贝叶斯递推"><a href="#目标跟踪中的贝叶斯递推" class="headerlink" title="目标跟踪中的贝叶斯递推"></a>目标跟踪中的贝叶斯递推</h2><p>$\mathbf{S}_k$为$k$时刻的广义目标状态。<br>联合概率密度函数$p(\mathbf{S}^k) =p(\mathbf{S}_0,\cdots, \mathbf{S}_k)$。<br>传感器输出$\mathbf{y}^{k}=(\mathbf{y}_{1}, \mathbf{y}_{2}, \cdots, \mathbf{y}_{k})$。</p>
-<p>由贝叶斯定理</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right) p\left(\mathbf{S}^{k}\right)}{p\left(\mathbf{y}^{k}\right)}</script><p>归一化因子计算：</p>
-<script type="math/tex; mode=display">p\left(\mathbf{y}^{k}\right)=\int_{\mathbf{S}_{k}} \cdots \int_{\mathbf{S}_{0}} p\left(\mathbf{y}^{k} \mid \mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) p\left(\mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) \mathrm{d} \mathbf{S}_{k} \cdots \mathrm{d} \mathbf{S}_{o}</script><p>贝叶斯递推：</p>
+ f(x) = \frac{1}{1+e^{-x}}\\
+ f'(x) = f(x)(1-f(x))</script></li>
+<li><p>RELU</p>
 <script type="math/tex; mode=display">
+ f(x) =\left\{
+ \begin{matrix}
+ x \ x>0\\
+ 0 \ x\leq0
+ \end{matrix}\right.\\
+ f'(x)= \left\{
+ \begin{matrix}
+ 1 \ x>0\\
+ 0 \ x\leq0
+ \end{matrix}\right.</script></li>
+</ol>
+<h3 id="forward-propagation"><a href="#forward-propagation" class="headerlink" title="forward propagation"></a>forward propagation</h3><script type="math/tex; mode=display">
+\left\{
 \begin{aligned}
-& p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right)=p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) \\
-& =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right)\\
-& p\left(\mathbf{S}^{k}\right) =p\left(\mathbf{S}_{k}, \mathbf{S}^{k-1}\right)=p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right) \\
-& p\left(\mathbf{y}^{k}\right) =p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1}\right)=p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right) p\left(\mathbf{y}^{k-1}\right)
-\end{aligned}</script><p>带入</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)}\left\{\frac{p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}^{k-1}\right)}\right\}</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><p>通过推导可以得到</p>
+&\boldsymbol{z}^{(1)} = \boldsymbol{W}^{(1)}\boldsymbol{x}^{(1)}+\boldsymbol{b}^{(1)}\\
+&\boldsymbol{x}^{(2)} = f(\boldsymbol{z}^{(1)})\\
+&\boldsymbol{z}^{(2)} = \boldsymbol{W}^{(2)}\boldsymbol{x}^{(2)}+\boldsymbol{b}^{(2)}\\
+&\boldsymbol{y}=f(\boldsymbol{z}^{(2)})
+\end{aligned}
+\right.</script><h3 id="Define-Loss-function-J-boldsymbol-cdot"><a href="#Define-Loss-function-J-boldsymbol-cdot" class="headerlink" title="Define Loss function$J(\boldsymbol{\cdot})$"></a>Define Loss function$J(\boldsymbol{\cdot})$</h3><script type="math/tex; mode=display">
+J(\boldsymbol{W}^{(1)},\boldsymbol{W}^{(2)},\boldsymbol{b}^{(1)},\boldsymbol{b}^{(2)})
+=\frac{1}{2}\boldsymbol{e}^2</script><script type="math/tex; mode=display">
+\boldsymbol{e}^2=\Vert \boldsymbol{y}-\boldsymbol{d} \Vert_2^2=(\boldsymbol{y}-\boldsymbol{d})^T(\boldsymbol{y}-\boldsymbol{d})</script><p>Take the derivative of the loss function</p>
 <script type="math/tex; mode=display">
-p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k-1}\right)</script><p>即就是</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) \int_{\mathbf{s}_{k-1}} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}_{k-1} \mid \mathbf{y}^{k-1}\right) \mathrm{d} \mathbf{S}_{k-1}</script>
+\left\{
+\begin{aligned}
+\Delta J_{\boldsymbol{b}^{(2)}}&=-ey(1-y)\\
+\Delta J_{\boldsymbol{W}^{(2)}}&=-ey(1-y){\boldsymbol{x}^{(2)}}^T\\
+\Delta J_{\boldsymbol{b}^{(1)}}&=-ey(1-y){\boldsymbol{W}^{(2)}}^T\cdot\boldsymbol{x}^{(2)}\cdot(1-\boldsymbol{x}^{(2)})\\
+\Delta J_{\boldsymbol{W}^{(1)}}&=-ey(1-y){\boldsymbol{W}^{(2)}}\boldsymbol{x}^{(2)}\cdot(1-\boldsymbol{x}^{(2)})\boldsymbol{x}^{(1)}\\
+\end{aligned}
+\right.</script><h3 id="Back-propagation"><a href="#Back-propagation" class="headerlink" title="Back propagation"></a>Back propagation</h3><p>Learning step $\mu$</p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{aligned}
+\boldsymbol{b}^{(2)}_{new} &= \boldsymbol{b}^{(2)}_{old} + \mu\Delta J_{\boldsymbol{b}^{(2)}}\\
+\boldsymbol{W}^{(2)}_{new} &= \boldsymbol{W}^{(2)}_{old} + \mu\Delta J_{\boldsymbol{W}^{(2)}}\\
+\boldsymbol{b}^{(1)}_{new} &= \boldsymbol{b}^{(1)}_{old} + \mu\Delta J_{\boldsymbol{b}^{(1)}}\\
+\boldsymbol{W}^{(1)}_{new} &= \boldsymbol{W}^{(1)}_{old} + \mu\Delta J_{\boldsymbol{W}^{(1)}}
+\end{aligned}
+\right.</script><h3 id="Simulation"><a href="#Simulation" class="headerlink" title="Simulation"></a>Simulation</h3><p><img src="/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/BPfit.png" alt></p>
+<p><img src="/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/BPfiterror.png" alt></p>
+
     </div>
 
     
@@ -243,8 +286,7 @@ p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} 
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%AE%9A%E7%90%86/" rel="tag"># 贝叶斯定理</a>
-              <a href="/tags/%E8%B4%9D%E5%8F%B6%E6%96%AF%E9%80%92%E6%8E%A8/" rel="tag"># 贝叶斯递推</a>
+              <a href="/tags/%E8%84%89%E5%86%B2%E5%A4%9A%E6%99%AE%E5%8B%92/" rel="tag"># 脉冲多普勒</a>
           </div>
 
         
@@ -253,13 +295,10 @@ p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} 
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E9%9D%9E%E6%9C%BA%E5%8A%A8%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E4%B8%8E%E6%9C%80%E4%BC%98%E6%BB%A4%E6%B3%A2/" rel="prev" title="非机动目标跟踪与最优滤波">
-      <i class="fa fa-chevron-left"></i> 非机动目标跟踪与最优滤波
+    <a href="/2020/07/17/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E8%81%94%E5%90%88%E6%A6%82%E7%8E%87%E6%95%B0%E6%8D%AE%E4%BA%92%E8%81%94%E7%AE%97%E6%B3%95/" rel="prev" title="联合概率数据互联算法（JPDA）">
+      <i class="fa fa-chevron-left"></i> 联合概率数据互联算法（JPDA）
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/" rel="next" title="KF">
-      KF <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -318,7 +357,7 @@ p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} 
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%8E%A8%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">贝叶斯推理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%AE%9A%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">贝叶斯定理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E4%B8%AD%E7%9A%84%E8%B4%9D%E5%8F%B6%E6%96%AF%E9%80%92%E6%8E%A8"><span class="nav-number">1.2.</span> <span class="nav-text">目标跟踪中的贝叶斯递推</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Defination"><span class="nav-number">1.</span> <span class="nav-text">Defination</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Activation-function"><span class="nav-number">2.</span> <span class="nav-text">Activation function:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#forward-propagation"><span class="nav-number">3.</span> <span class="nav-text">forward propagation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Define-Loss-function-J-boldsymbol-cdot"><span class="nav-number">4.</span> <span class="nav-text">Define Loss function$J(\boldsymbol{\cdot})$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Back-propagation"><span class="nav-number">5.</span> <span class="nav-text">Back propagation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Simulation"><span class="nav-number">6.</span> <span class="nav-text">Simulation</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
