@@ -20,14 +20,17 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="article">
-<meta property="og:title" content="Bulijiojio Blog">
+  <meta name="description" content="123456789101112131415161718192021222324252627282930313233343536373839@startuml dsspartition main    (*) --&gt; SOC_init()    --&gt;[create]MmwDemo_dssInitTask()    --&gt;BIOS_start()    --&gt; return">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mmWave Out of box demo的目标跟踪">
 <meta property="og:url" content="https://example.com/2021/09/23/xWRnote/Experiment2/index.html">
 <meta property="og:site_name" content="Bulijiojio Blog">
+<meta property="og:description" content="123456789101112131415161718192021222324252627282930313233343536373839@startuml dsspartition main    (*) --&gt; SOC_init()    --&gt;[create]MmwDemo_dssInitTask()    --&gt;BIOS_start()    --&gt; return">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-09-22T16:21:50.212Z">
-<meta property="article:modified_time" content="2021-08-30T06:00:59.490Z">
+<meta property="article:published_time" content="2021-09-22T16:27:40.000Z">
+<meta property="article:modified_time" content="2021-09-22T16:28:50.467Z">
 <meta property="article:author" content="YXY">
+<meta property="article:tag" content="mmWave_tutorial">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://example.com/2021/09/23/xWRnote/Experiment2/">
@@ -43,7 +46,7 @@
   };
 </script>
 
-  <title> | Bulijiojio Blog</title>
+  <title>mmWave Out of box demo的目标跟踪 | Bulijiojio Blog</title>
   
 
 
@@ -172,7 +175,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          mmWave Out of box demo的目标跟踪
         </h1>
 
         <div class="post-meta">
@@ -181,16 +184,19 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-09-23 00:21:50" itemprop="dateCreated datePublished" datetime="2021-09-23T00:21:50+08:00">2021-09-23</time>
+              <time title="创建时间：2021-09-23 00:27:40 / 修改时间：00:28:50" itemprop="dateCreated datePublished" datetime="2021-09-23T00:27:40+08:00">2021-09-23</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-08-30 14:00:59" itemprop="dateModified" datetime="2021-08-30T14:00:59+08:00">2021-08-30</time>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
               </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TI-project/" itemprop="url" rel="index"><span itemprop="name">TI project</span></a>
+                </span>
+            </span>
 
           
 
@@ -203,7 +209,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">@startuml dss</span><br><span class="line"></span><br><span class="line">partition main</span><br><span class="line">    (*) --&gt; SOC_init()</span><br><span class="line">    --&gt;[create]MmwDemo_dssInitTask()</span><br><span class="line">    --&gt;BIOS_start()</span><br><span class="line">    --&gt; return </span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;MmwDemo_dssInitTask&quot;</span><br><span class="line">    &quot;MmwDemo_dssInitTask()&quot;-&gt;Mailbox_init()</span><br><span class="line">    --&gt;MmwDemo_edmaInit</span><br><span class="line">    --&gt;MmwDemo_edmaOpen</span><br><span class="line">    --&gt;DPM_init()</span><br><span class="line">    --&gt;DPM_synch()</span><br><span class="line">    --&gt;[until success]DPM_synch()</span><br><span class="line">    --&gt;[create]MmwDemo_DPC_ObjectDetection_dpmTask()</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;MmwDemo_DPC_ObjectDetection_dpmTask&quot;</span><br><span class="line">    &quot;MmwDemo_DPC_ObjectDetection_dpmTask()&quot; -&gt; DPM_execute()</span><br><span class="line">    --&gt;Cycleprofiler_getTimeStamp()</span><br><span class="line">    --&gt;MmwDemo_updateObjectDetStats()</span><br><span class="line">    --&gt;MmwDemo_copyResultToHSRAM()</span><br><span class="line">    --&gt;DPM_sendResult()</span><br><span class="line">    --&gt;DPM_execute()</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;DPM_execute&quot;</span><br><span class="line">    &quot;DPM_execute()&quot;-&gt;SemaphoreP_pend(ptrDPM-&gt;semaphoreHandle, SemaphoreP_WAIT_FOREVER)</span><br><span class="line">    note right:Pending on the semaphore: Waiting for events to be received</span><br><span class="line">    --&gt;DPM_msgRecv()</span><br><span class="line">    --&gt;HwiP_disable()</span><br><span class="line">    --&gt;HwiP_restore()</span><br><span class="line">    --&gt;ptrDPM-&gt;procChainCfg.executeFxn()</span><br><span class="line">    note right:确实需要处理DPC</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -211,6 +217,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mmWave-tutorial/" rel="tag"># mmWave_tutorial</a>
+          </div>
 
         
 
