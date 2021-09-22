@@ -156,6 +156,342 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/09/23/xWRnote/Experiment2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/23/xWRnote/Experiment2/" class="post-title-link" itemprop="url">未命名</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-23 00:21:50" itemprop="dateCreated datePublished" datetime="2021-09-23T00:21:50+08:00">2021-09-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-30 14:00:59" itemprop="dateModified" datetime="2021-08-30T14:00:59+08:00">2021-08-30</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/08/01/xWRnote/Experiment1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/01/xWRnote/Experiment1/" class="post-title-link" itemprop="url">快速上手mmWave Out of box demo</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-01 14:01:29" itemprop="dateCreated datePublished" datetime="2021-08-01T14:01:29+08:00">2021-08-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-23 00:21:22" itemprop="dateModified" datetime="2021-09-23T00:21:22+08:00">2021-09-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TI-project/" itemprop="url" rel="index"><span itemprop="name">TI project</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>常规的Out Box of Demo的食用方法TI官方给的已经很多了总结下来就是:</p>
+<ol>
+<li>电脑装emupack(设备和电脑通过USB通信的驱动程序)</li>
+<li>Uniflash给设备烧录demo的预编译文件</li>
+<li>使用demo_visualizer与设备通过UART通信并读取数据, 可视化数据</li>
+</ol>
+<p>但是这样使用官方软件的方法并不适合我们做更进一步的处理, 比如目标识别, 跟踪等等信息处理. 所以我们要做的就是写一个脚本来替代demo_visualizer. 那为了完成这样一件事儿我们需要知道demo_visualizer的工作机制, 具体通信的方式, 数据格式等等细节.</p>
+<p>在这篇博客中会有许多概念我们默认为读者已经提前了解了, 比如通用异步收发传输器(Universal Asynchronous Receiver/Transmitter, <strong>UART</strong>), 基本的LFMCW雷达原理等. 如果有不清楚的概念搜索引擎搜索就可以得到需要的信息.</p>
+<p>在这篇博客中我们将讲首先介绍out of box demo的数据传输方式以及格式, 之后会分别使用matlab和python给出一个例程, 这个例程可以读取雷达的数据还可以对数据进行可视化.</p>
+<h1 id="数据传输方式以及格式"><a href="#数据传输方式以及格式" class="headerlink" title="数据传输方式以及格式"></a>数据传输方式以及格式</h1><h2 id="数据传输方式"><a href="#数据传输方式" class="headerlink" title="数据传输方式"></a>数据传输方式</h2><p>xWR设备使用UART与上位机通信,熟悉嵌入式的读者应该清楚从xWR SoC上的UART电平信号想通过USB传输一定需要一个转换电路将其转换为USB的差分信号, 同时还要能告诉USB host传输信号的源数据类型为UART. 那么这件工作是由谁来完成的呢, 对于xWR1642boost和xWR1843boost 是通过评估板上的一块XDS芯片完成的, 而对于xWR6843AoP, xWR6843ISK-ODS和xWR6843ISK 则是通过一块名为CP2015的UART bridge芯片完成的. 当你安装emupack这个驱动程序时, 其实你就安装了XDS的芯片驱动程序. 那CP2015的驱动程序呢? 由于CP2015是一块”烂大街”的芯片(使用极其广泛), 大多数Windows发行版在安装时就已经包含了这个驱动程序, 如果你的电脑不幸miss了CP2015的驱动程序, 通过网络你也可以很轻易的得到.</p>
+<p>当你通过micro-USB的数据线将xWR评估板连接到你的电脑上时, 你会在设备管理器中看到检测到新插入的两个串行接口, 后面还会显示相应的COM标号:</p>
+<ul>
+<li>xWR1642boost和xWR1843boost会显示为 </li>
+<li>xWR6843AoP, xWR6843ISK-ODS和xWR6843ISK会显示为<br><img src="/2021/08/01/xWRnote/Experiment1/ISK_WinDevice.png" alt></li>
+</ul>
+<p>他们分别时CLI port和 Data port, CLI port传输你对demo程序的配置, 比如LFMCW雷达波形基础配置, 检测算法阈值的配置等等, 同时demo程序也会积极的与你交互, 告知你的配置格式数据是否合规. Data port传输经过雷达数据处理得到的检测点云数据, 芯片工作负载信息等等. 正是由于这两个串口不同的工作任务, 他们对信息传输的速度要求不同, CLI port工作在115200的波特率而Data port工作在926000的波特率. 当然这两个串口也是工作在全双工模式下的.</p>
+<h2 id="CLI-port数据格式"><a href="#CLI-port数据格式" class="headerlink" title="CLI port数据格式"></a>CLI port数据格式</h2><p>CLI port是传输你对Demo程序的配置的端口, 配置信息的格式及相应的含义可以在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;ti&#x2F;mmwave_sdk_&lt;ver&gt;&#x2F;docs&#x2F;mmwave_sdk_user_guide.pdf </span><br></pre></td></tr></table></figure><br>中的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3.4 Configuration (.cfg) File Format </span><br></pre></td></tr></table></figure><br>中找到</p>
+<h2 id="Data-port数据格式"><a href="#Data-port数据格式" class="headerlink" title="Data port数据格式"></a>Data port数据格式</h2><p>Data port的数据格式可以在<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt; \ti\mmwave_sdk_&lt;ver&gt;\packages\ti\demo\xwr68xx\mmw\docs</span><br></pre></td></tr></table></figure><br>中找到,如下图所示<br><img src="/2021/08/01/xWRnote/Experiment1/output_packet_uart.png" alt><br>Data port数据输出格式是一个<strong>TLV格式</strong>的协议, 即就是每一个大的数据块(TLV)由 Tag, Length 和 Value 三个部分组成. 并且在 Data port 一次输出数据的过程中, 可能输出多个TLV, 这样在总的数据块头部, 需要一个总的Header数据段以告知该数据包TLV的数目以及这个Packet的长度(in bytes). 那么每个TLV传输的是什么数据呢? 比如检测的点云数据, 距离多普勒数据, 距离幅度的一维数据等等. 熟悉C语言的读者可以发现, 这样的多段线性的存储结构可以使用结构体来实现, 这也是TI 的官方Demo程序的做法. Packet 的<strong>header</strong>结构体叫 <strong>MmwDemo_output_message_header_t</strong> </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">MmwDemo_output_message_header_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">uint16_t</span>    magicWord[<span class="number">4</span>];</span><br><span class="line">	<span class="keyword">uint32_t</span>     version;</span><br><span class="line">	<span class="keyword">uint32_t</span>    totalPacketLen;</span><br><span class="line">	<span class="keyword">uint32_t</span>    platform;</span><br><span class="line">	<span class="keyword">uint32_t</span>    frameNumber;</span><br><span class="line">	<span class="keyword">uint32_t</span>    timeCpuCycles;</span><br><span class="line">	<span class="keyword">uint32_t</span>    numDetectedObj;</span><br><span class="line">	<span class="keyword">uint32_t</span>    numTLVs;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> SOC_XWR16XX</span></span><br><span class="line">	<span class="keyword">uint32_t</span>    subFrameNumber;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125; MmwDemo_output_message_header;</span><br></pre></td></tr></table></figure>
+<p>每个结构体成员变量的含义可以在以下html文档中查看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;ti&#x2F;mmwave_sdk_02_01_00_04&#x2F;packages&#x2F;ti&#x2F;demo&#x2F;xwr16xx&#x2F;mmw&#x2F;docs&#x2F;doxygen&#x2F;html&#x2F;struct_mmw_demo__output__message__header__t.html</span><br></pre></td></tr></table></figure><br>仅仅通过变量的名称我们可以发现, Packet的<strong>header</strong>包含了SDK的版本, Packet的长度, mmWave Device的名称, Packet的编号, 检测点的个数以及TLV的个数. 那么之后就是要确定每个TLV的格式了, Demo 中给出了几种功能的TLV</p>
+<ol>
+<li>List of detected objects</li>
+<li>Range profile</li>
+<li>Noise floor profile</li>
+<li>Azimuth static heatmap</li>
+<li>Range/Doppler heatmap</li>
+<li>Stats information</li>
+</ol>
+<p>每种TLV的功能可以参见如下文档的 Output information sent to host 部分<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;ti&#x2F;mmwave_sdk_02_01_00_04&#x2F;packages&#x2F;ti&#x2F;demo&#x2F;xwr16xx&#x2F;mmw&#x2F;docs&#x2F;doxygen&#x2F;html&#x2F;index.html</span><br></pre></td></tr></table></figure><br>在这里着重要说明的是检测点云(List of detected objects)的输出格式, 也是我们需要重点需要从 Demo 中获得的数据</p>
+<p><strong>List of detected objects TLV</strong> 的数据结构如图<br><img src="/2021/08/01/xWRnote/Experiment1/detected_objects_tlv.png" alt></p>
+<p>Tag和Length的结构体定义如下<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">MmwDemo_output_message_tl_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">uint32_t</span>    type;</span><br><span class="line">	<span class="keyword">uint32_t</span>    length;</span><br><span class="line">&#125; MmwDemo_output_message_tl;</span><br></pre></td></tr></table></figure><br>而<strong>List of detected objects TLV</strong>的第二个结构体包含了检测到的点的个数与坐标存储的格式(Q-format, 即定点数)<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">MmwDemo_output_message_dataObjDescr_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">uint16_t</span>     numDetetedObj;</span><br><span class="line">	<span class="keyword">uint16_t</span>     xyzQFormat;</span><br><span class="line">&#125; MmwDemo_output_message_dataObjDescr;</span><br></pre></td></tr></table></figure><br>在MmwDemo_output_message_dataObjDescr之后紧跟着numDetetedObj个检测的点云数据<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">volatile</span> <span class="class"><span class="keyword">struct</span> <span class="title">MmwDemo_detectedObj_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">uint16_t</span>  rangeIdx;     </span><br><span class="line">	<span class="keyword">int16_t</span>   dopplerIdx;   </span><br><span class="line">	<span class="keyword">uint16_t</span>  peakVal;      </span><br><span class="line">	<span class="keyword">int16_t</span>   x;             </span><br><span class="line">	<span class="keyword">int16_t</span>   y;             </span><br><span class="line">	<span class="keyword">int16_t</span>   z;             </span><br><span class="line">&#125; MmwDemo_detectedObj;</span><br></pre></td></tr></table></figure></p>
+<h1 id="相关代码-matlab"><a href="#相关代码-matlab" class="headerlink" title="相关代码(matlab)"></a>相关代码(matlab)</h1><h2 id="打开传输串口"><a href="#打开传输串口" class="headerlink" title="打开传输串口"></a>打开传输串口</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[CLI_sphandle,DATA_sphandle]</span> = <span class="title">setupUART</span><span class="params">(CLIcomPortString,DATAcomPortString)</span></span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> strcmp(CLIcomPortString(<span class="number">1</span>:<span class="number">3</span>),<span class="string">&#x27;COM&#x27;</span>) || strcmp(DATAcomPortString(<span class="number">1</span>:<span class="number">3</span>),<span class="string">&#x27;COM&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        CLI_sphandle = serial(CLIcomPortString,<span class="string">&#x27;BaudRate&#x27;</span>,<span class="number">115200</span>);</span><br><span class="line">        set(CLI_sphandle,<span class="string">&#x27;Parity&#x27;</span>,<span class="string">&#x27;none&#x27;</span>)</span><br><span class="line">        set(CLI_sphandle,<span class="string">&#x27;Terminator&#x27;</span>,<span class="string">&#x27;LF&#x27;</span>)</span><br><span class="line">        fopen(CLI_sphandle);</span><br><span class="line"></span><br><span class="line">        DATA_sphandle = serial(DATAcomPortString,<span class="string">&#x27;BaudRate&#x27;</span>,<span class="number">921600</span>);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;Terminator&#x27;</span>, <span class="string">&#x27;&#x27;</span>);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;InputBufferSize&#x27;</span>, <span class="number">65536</span>);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;Timeout&#x27;</span>,<span class="number">10</span>);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;ErrorFcn&#x27;</span>,@dispError);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;BytesAvailableFcnMode&#x27;</span>,<span class="string">&#x27;byte&#x27;</span>);</span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;BytesAvailableFcnCount&#x27;</span>, <span class="number">2</span>^<span class="number">16</span>+<span class="number">1</span>);<span class="comment">%BYTES_AVAILABLE_FCN_CNT);</span></span><br><span class="line">        set(DATA_sphandle,<span class="string">&#x27;BytesAvailableFcn&#x27;</span>,@readUartCallbackFcn);</span><br><span class="line">        fopen(DATA_sphandle);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        fprintf(<span class="string">&#x27;COM port string format wrong\n&#x27;</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="CLI-port配置数据"><a href="#CLI-port配置数据" class="headerlink" title="CLI port配置数据"></a>CLI port配置数据</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">% Carrier frequency     GHz                          60.25</span><br><span class="line">% Ramp Slope    MHz&#x2F;us                               156</span><br><span class="line">% Num ADC Samples                                    256</span><br><span class="line">% ADC Sampling Rate Msps                             12.5</span><br><span class="line">% ADC Collection Time   us                           20.48</span><br><span class="line">% Extra ramp time required (start time) us           3</span><br><span class="line">% Chirp time (end time - start time)    us           21</span><br><span class="line">% Chirp duration (end time) us                       24</span><br><span class="line">% Sweep BW (useful) MHz                              3194.88</span><br><span class="line">% Total BW  MHz                                      3744</span><br><span class="line">% Max beat freq (80% of ADC sampling rate)  MHz      10</span><br><span class="line">% Max distance (80%)    m                            9.62</span><br><span class="line">% Range resolution  m                                0.047</span><br><span class="line">% Range resolution (meter per 1D-FFT bin)   m&#x2F;bin    0.047</span><br><span class="line">%                                                    </span><br><span class="line">% Inter-chirp duration  us                           7</span><br><span class="line">% Number of chirp intervals in frame    -            96</span><br><span class="line">% Number of TX (TDM MIMO)                            3</span><br><span class="line">% Number of Tx elevation antennas                    0</span><br><span class="line">% Number of RX channels -                            4</span><br><span class="line">% Max umambiguous relative velocity kmph             48.19</span><br><span class="line">%   mileph                                           30.12</span><br><span class="line">% Max extended relative velocity    kmph             144.56</span><br><span class="line">%   mileph                                           90.35</span><br><span class="line">% Frame time (total)    ms                           2.976</span><br><span class="line">% Frame time (active)   ms                           2.304</span><br><span class="line">% Range FFT size    -                                256</span><br><span class="line">% Doppler FFT size  -                                32</span><br><span class="line">% Radar data memory required    KB                   400</span><br><span class="line">% Velocity resolution   m&#x2F;s                          0.84</span><br><span class="line">% Velocity resolution (m&#x2F;s per 2D-FFT bin)  m&#x2F;s&#x2F;bin  0.84</span><br><span class="line">% Velocity Maximum  m&#x2F;s                              13.39</span><br><span class="line">% Extended Maximum Velocity m&#x2F;s                      40.16</span><br><span class="line">% Maximum sweep accorss range bins  range bin        0.85</span><br><span class="line">% </span><br><span class="line">sensorStop</span><br><span class="line">flushCfg</span><br><span class="line">dfeDataOutputMode 1</span><br><span class="line">channelCfg 15 7 0</span><br><span class="line">adcCfg 2 1</span><br><span class="line">adcbufCfg -1 0 1 1 1</span><br><span class="line">lowPower 0 0</span><br><span class="line">profileCfg 0 60.25 7 3 24 0 0 156 1 256 12500 0 0 30</span><br><span class="line">chirpCfg 0 0 0 0 0 0 0 1</span><br><span class="line">chirpCfg 1 1 0 0 0 0 0 4</span><br><span class="line">chirpCfg 2 2 0 0 0 0 0 2</span><br><span class="line">frameCfg 0 2 32 0 100 1 0</span><br><span class="line">guiMonitor -1 2 0 0 0 0 0</span><br><span class="line">cfarCfg -1 0 2 8 4 3 0 11.0 0</span><br><span class="line">cfarCfg -1 1 0 4 2 3 1 11.0 0</span><br><span class="line">multiObjBeamForming -1 1 0.5</span><br><span class="line">calibDcRangeSig -1 0 -5 8 256</span><br><span class="line">clutterRemoval -1 1</span><br><span class="line"></span><br><span class="line">compRangeBiasAndRxChanPhase 0.0 -1 0 1 0 1 0 -1 0 -1 0 1 0 1 0 -1 0 -1 0 1 0 1 0 -1 0</span><br><span class="line">measureRangeBiasAndRxChanPhase 0 1. 0.2</span><br><span class="line"></span><br><span class="line">aoaFovCfg -1 -90 90 -90 90</span><br><span class="line">cfarFovCfg -1 0 0.1 5</span><br><span class="line">cfarFovCfg -1 1 -13.39 13.39</span><br><span class="line">extendedMaxVelocity -1 0</span><br><span class="line"></span><br><span class="line">CQRxSatMonitor 0 3 4 63 0</span><br><span class="line">CQSigImgMonitor 0 127 4</span><br><span class="line">analogMonitor 0 0</span><br><span class="line">lvdsStreamCfg -1 0 0 0</span><br><span class="line">bpmCfg -1 0 0 0</span><br><span class="line">sensorStart</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="读取CLI-port配置数据"><a href="#读取CLI-port配置数据" class="headerlink" title="读取CLI port配置数据"></a>读取CLI port配置数据</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[configcmd]</span> = <span class="title">readCfgFile</span><span class="params">(configFile)</span></span></span><br><span class="line"></span><br><span class="line">configcmd = cell(<span class="number">1</span>,<span class="number">100</span>);</span><br><span class="line">fid = fopen(configFile, <span class="string">&#x27;r&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> fid == <span class="number">-1</span></span><br><span class="line">    fprintf(<span class="string">&#x27;File %s not found!\n&#x27;</span>, configFile);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    fprintf(<span class="string">&#x27;Opening configuration file %s ...\n&#x27;</span>, configFile);</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">tline = fgetl(fid);</span><br><span class="line">k=<span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span> ischar(tline)</span><br><span class="line">    <span class="keyword">if</span> ~<span class="built_in">isempty</span>(tline)</span><br><span class="line">        configcmd&#123;k&#125; = tline;</span><br><span class="line">        k = k + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">end</span> </span><br><span class="line">    tline = fgetl(fid);</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">configcmd = configcmd(<span class="number">1</span>:k<span class="number">-1</span>);</span><br><span class="line">fclose(fid);</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="发送CLI-port的配置数据"><a href="#发送CLI-port的配置数据" class="headerlink" title="发送CLI port的配置数据"></a>发送CLI port的配置数据</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendCfg</span><span class="params">(UART_sphandle,configcmd)</span></span></span><br><span class="line">mmwDemoCliPrompt = char(<span class="string">&#x27;mmwDemo:/&gt;&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">%Send CLI configuration to IWR</span></span><br><span class="line">fprintf(<span class="string">&#x27;Sending configuration to IWR radar\n&#x27;</span>);</span><br><span class="line"><span class="keyword">for</span> k=<span class="number">1</span>:<span class="built_in">length</span>(configcmd)</span><br><span class="line">    command = configcmd&#123;k&#125;;</span><br><span class="line">    fprintf(UART_sphandle, command);</span><br><span class="line">    fprintf(<span class="string">&#x27;%s\n&#x27;</span>, command);</span><br><span class="line">    echo = fgetl(UART_sphandle); <span class="comment">% Get an echo of a command</span></span><br><span class="line">    done = fgetl(UART_sphandle); <span class="comment">% Get &quot;Done&quot;</span></span><br><span class="line">    fprintf(<span class="string">&#x27;%s\n&#x27;</span>, done);</span><br><span class="line">    prompt = fread(UART_sphandle, <span class="built_in">size</span>(mmwDemoCliPrompt,<span class="number">2</span>)); <span class="comment">% Get the prompt back</span></span><br><span class="line">    fprintf(<span class="string">&#x27;%s\n&#x27;</span>, prompt);</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="读取Data-port数据"><a href="#读取Data-port数据" class="headerlink" title="读取Data port数据"></a>读取Data port数据</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[dataOk, frameNumber, detObj]</span> = <span class="title">readAndParseData</span><span class="params">(DATA_sphandle)</span></span></span><br><span class="line">    OBJ_STRUCT_SIZE_BYTES = <span class="number">16</span>;</span><br><span class="line">    BYTE_VEC_ACC_MAX_SIZE = <span class="number">2</span>^<span class="number">16</span>;</span><br><span class="line">    MMWDEMO_UART_MSG_DETECTED_POINTS = <span class="number">1</span>;</span><br><span class="line">    MMWDEMO_UART_MSG_RANGE_PROFILE   = <span class="number">2</span>;</span><br><span class="line">    MMWDEMO_UART_MSG_DETECTED_POINTS_SIDE_INFO  = <span class="number">7</span>;</span><br><span class="line">    maxBufferSize = BYTE_VEC_ACC_MAX_SIZE;</span><br><span class="line">    </span><br><span class="line">    detObj = [];</span><br><span class="line">    frameNumber = <span class="number">0</span>;</span><br><span class="line">      </span><br><span class="line">    <span class="keyword">persistent</span> byteBuffer</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isempty</span>(byteBuffer)</span><br><span class="line">        byteBuffer = <span class="built_in">zeros</span>(maxBufferSize,<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">persistent</span> byteBufferLength</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isempty</span>(byteBufferLength)</span><br><span class="line">        byteBufferLength = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">persistent</span> magiNotOkCounter</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isempty</span>(magiNotOkCounter)</span><br><span class="line">        magiNotOkCounter = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    magicOk = <span class="number">0</span>;</span><br><span class="line">    dataOk = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    bytesToRead = get(DATA_sphandle,<span class="string">&#x27;BytesAvailable&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span> (bytesToRead ~= <span class="number">0</span>)</span><br><span class="line">        <span class="comment">% Read the Data Serial Port</span></span><br><span class="line">        [bytevec, byteCount] = fread(DATA_sphandle, bytesToRead, <span class="string">&#x27;uint8&#x27;</span>);</span><br><span class="line">        </span><br><span class="line">         <span class="comment">% Check if the buffer is not full, and then add the data to the buffer:</span></span><br><span class="line">        <span class="keyword">if</span>(byteBufferLength + byteCount &lt; maxBufferSize)</span><br><span class="line">            byteBuffer(byteBufferLength+<span class="number">1</span>:byteBufferLength + byteCount) = bytevec(<span class="number">1</span>:byteCount);</span><br><span class="line">            byteBufferLength = byteBufferLength + byteCount;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">% Check that the buffer is not empty:</span></span><br><span class="line">    <span class="keyword">if</span> byteBufferLength &gt; <span class="number">16</span></span><br><span class="line">        byteBufferStr = char(byteBuffer);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">% Search for the magic number inside the buffer and check that at least one magic number has been found:</span></span><br><span class="line">        startIdx = strfind(byteBufferStr&#x27;, char([<span class="number">2</span> <span class="number">1</span> <span class="number">4</span> <span class="number">3</span> <span class="number">6</span> <span class="number">5</span> <span class="number">8</span> <span class="number">7</span>]));</span><br><span class="line">        <span class="keyword">if</span> ~<span class="built_in">isempty</span>(startIdx)</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Check the position of the first magic number and put it at</span></span><br><span class="line">            <span class="comment">% the beginning of the buffer</span></span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">length</span>(startIdx) &gt;= <span class="number">2</span></span><br><span class="line">                <span class="keyword">if</span> startIdx(<span class="keyword">end</span><span class="number">-1</span>) &gt; <span class="number">1</span></span><br><span class="line">                    byteBuffer(<span class="number">1</span>:byteBufferLength-(startIdx(<span class="number">1</span>)<span class="number">-1</span>)) = byteBuffer(startIdx(<span class="number">1</span>):byteBufferLength);</span><br><span class="line">                    byteBufferLength = byteBufferLength - (startIdx(<span class="number">1</span>)<span class="number">-1</span>);</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">if</span> startIdx(<span class="number">1</span>) &gt; <span class="number">1</span></span><br><span class="line">                    byteBuffer(<span class="number">1</span>:byteBufferLength-(startIdx(<span class="number">1</span>)<span class="number">-1</span>)) = byteBuffer(startIdx(<span class="number">1</span>):byteBufferLength);</span><br><span class="line">                    byteBufferLength = byteBufferLength - (startIdx(<span class="number">1</span>)<span class="number">-1</span>);</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">if</span> byteBufferLength &lt; <span class="number">0</span></span><br><span class="line">                byteBufferLength = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            </span><br><span class="line">            totalPacketLen = sum(byteBuffer(<span class="number">8</span>+<span class="number">4</span>+[<span class="number">1</span>:<span class="number">4</span>]) .* [<span class="number">1</span> <span class="number">256</span> <span class="number">65536</span> <span class="number">16777216</span>]&#x27;);</span><br><span class="line">            <span class="keyword">if</span> ((byteBufferLength &gt;= totalPacketLen) &amp;&amp; (byteBufferLength ~= <span class="number">0</span>)) </span><br><span class="line">                magicOk = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                magicOk = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (magicOk == <span class="number">1</span>)</span><br><span class="line">        <span class="comment">%%%%% HEADER</span></span><br><span class="line">        word = [<span class="number">1</span> <span class="number">256</span> <span class="number">65536</span> <span class="number">16777216</span>]&#x27;;</span><br><span class="line">        idx = <span class="number">0</span>;</span><br><span class="line">        magicNumber = byteBuffer(idx + <span class="number">1</span>:<span class="number">8</span>);</span><br><span class="line">        idx = idx + <span class="number">8</span>;</span><br><span class="line">        Header.version = dec2hex(sum(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>]) .* word));</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.totalPacketLen = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.platform = dec2hex(sum(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>]) .* word));</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.frameNumber = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        frameNumber = Header.frameNumber;</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.timeCpuCycles = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.numDetectedObj = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.numTLVs = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        Header.subFrameNumber = typecast(uint8(byteBuffer(idx+[<span class="number">1</span>:<span class="number">4</span>])),<span class="string">&#x27;uint32&#x27;</span>);</span><br><span class="line">        idx = idx + <span class="number">4</span>;</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="comment">%%%%% TLV</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">% Analyze each of TLV messages:</span></span><br><span class="line">        <span class="keyword">for</span> tlvIdx = <span class="number">1</span>:Header.numTLVs</span><br><span class="line">            word = [<span class="number">1</span> <span class="number">256</span> <span class="number">65536</span> <span class="number">16777216</span>]&#x27;;</span><br><span class="line">            <span class="comment">% First, analyze the TLV header (TLV type and length):</span></span><br><span class="line">            tlv.<span class="built_in">type</span> = sum(byteBuffer(idx+uint32(<span class="number">1</span>:<span class="number">4</span>)) .* word);</span><br><span class="line">            idx = idx + <span class="number">4</span>;</span><br><span class="line">            tlv.<span class="built_in">length</span> = sum(byteBuffer(idx+uint32(<span class="number">1</span>:<span class="number">4</span>)) .* word);</span><br><span class="line">            idx = idx + <span class="number">4</span>;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Check that the TLV message is of the right type (Detected objects):</span></span><br><span class="line">            <span class="keyword">switch</span> tlv.<span class="built_in">type</span></span><br><span class="line">                <span class="keyword">case</span> MMWDEMO_UART_MSG_DETECTED_POINTS</span><br><span class="line">                    detObj =[];</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">if</span> tlv.<span class="built_in">length</span> &gt; <span class="number">0</span>                       </span><br><span class="line">                        <span class="comment">% Extract the raw data for all the detected points</span></span><br><span class="line">                        bytes = byteBuffer(idx+(<span class="number">1</span>:Header.numDetectedObj*OBJ_STRUCT_SIZE_BYTES));</span><br><span class="line">                        idx = idx + Header.numDetectedObj*OBJ_STRUCT_SIZE_BYTES;</span><br><span class="line">                        </span><br><span class="line">                        <span class="comment">% Reshape the array to have the data for each point</span></span><br><span class="line">                        <span class="comment">% (X,Y,Z,doppler) in each column</span></span><br><span class="line">                        bytes = <span class="built_in">reshape</span>(bytes, OBJ_STRUCT_SIZE_BYTES, Header.numDetectedObj);</span><br><span class="line">                        </span><br><span class="line">                        <span class="comment">% Convert the byte matrix to float data</span></span><br><span class="line">                        floatData = <span class="built_in">reshape</span>(typecast(<span class="built_in">reshape</span>(uint8(bytes), <span class="number">1</span>, []), <span class="string">&#x27;single&#x27;</span>),<span class="number">4</span>,Header.numDetectedObj);</span><br><span class="line">                      </span><br><span class="line">                        detObj.numObj = Header.numDetectedObj;</span><br><span class="line">                        detObj.x = floatData(<span class="number">1</span>,:);</span><br><span class="line">                        detObj.y = floatData(<span class="number">2</span>,:);</span><br><span class="line">                        detObj.z = floatData(<span class="number">3</span>,:);</span><br><span class="line">                        detObj.doppler = floatData(<span class="number">4</span>,:);</span><br><span class="line">                        </span><br><span class="line">                        dataOk = <span class="number">1</span>;</span><br><span class="line">                        </span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">                <span class="keyword">case</span> MMWDEMO_UART_MSG_DETECTED_POINTS_SIDE_INFO</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">if</span> tlv.<span class="built_in">length</span> &gt; <span class="number">0</span>   </span><br><span class="line">                        bytes = byteBuffer(idx+(<span class="number">1</span>:Header.numDetectedObj*<span class="number">4</span>));</span><br><span class="line">                        idx = idx + Header.numDetectedObj*<span class="number">4</span>;</span><br><span class="line">                        </span><br><span class="line">                        <span class="comment">% Reshape the array to have the data for each point</span></span><br><span class="line">                        <span class="comment">% (snr,noise) in each column</span></span><br><span class="line">                        bytes = <span class="built_in">reshape</span>(bytes, <span class="number">4</span>, Header.numDetectedObj);</span><br><span class="line">                        </span><br><span class="line">                        <span class="comment">% Convert the byte matrix to float data</span></span><br><span class="line">                        floatData = <span class="built_in">reshape</span>(typecast(<span class="built_in">reshape</span>(uint8(bytes), <span class="number">1</span>, []), <span class="string">&#x27;int16&#x27;</span>),<span class="number">2</span>,Header.numDetectedObj);</span><br><span class="line">                        detObj.snr = floatData(<span class="number">1</span>,:);</span><br><span class="line">                        detObj.noise = floatData(<span class="number">2</span>,:);</span><br><span class="line">                        </span><br><span class="line">                        dataOk = <span class="number">1</span>;</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">end</span></span><br><span class="line">                <span class="keyword">case</span> MMWDEMO_UART_MSG_RANGE_PROFILE</span><br><span class="line">                    rp = byteBuffer(idx+uint32(<span class="number">1</span>:tlv.<span class="built_in">length</span>));</span><br><span class="line">                    idx = idx + tlv.<span class="built_in">length</span>;</span><br><span class="line">                    rp=rp(<span class="number">1</span>:<span class="number">2</span>:<span class="keyword">end</span>)+rp(<span class="number">2</span>:<span class="number">2</span>:<span class="keyword">end</span>)*<span class="number">256</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="comment">%Remove processed data</span></span><br><span class="line">        <span class="keyword">if</span> idx &gt; <span class="number">0</span></span><br><span class="line">            shiftSize = Header.totalPacketLen;</span><br><span class="line">            byteBuffer(<span class="number">1</span>: byteBufferLength-shiftSize) = byteBuffer(shiftSize+<span class="number">1</span>:byteBufferLength);</span><br><span class="line">            byteBufferLength = byteBufferLength - shiftSize;</span><br><span class="line">            <span class="keyword">if</span> byteBufferLength &lt; <span class="number">0</span></span><br><span class="line">                byteBufferLength = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        magiNotOkCounter = magiNotOkCounter + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h2 id="示例程序"><a href="#示例程序" class="headerlink" title="示例程序"></a>示例程序</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line">clear all; close all</span><br><span class="line">delete(instrfind);</span><br><span class="line"></span><br><span class="line">N = <span class="number">10000</span>;</span><br><span class="line">limit = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">% Setup radar with the parameters from the configuration file</span></span><br><span class="line">configFile = <span class="string">&quot;profile_3d.cfg&quot;</span>;</span><br><span class="line">configcmd = readCfgFile(configFile);</span><br><span class="line">[CLI_sphandle,DATA_sphandle] = setupUART(<span class="string">&#x27;COM9&#x27;</span>,<span class="string">&#x27;COM10&#x27;</span>);</span><br><span class="line">sendCfg(CLI_sphandle,configcmd)</span><br><span class="line"></span><br><span class="line"><span class="comment">%% Initialize the figure</span></span><br><span class="line"><span class="built_in">figure</span></span><br><span class="line"></span><br><span class="line">H1 = uicontrol(<span class="string">&#x27;Style&#x27;</span>, <span class="string">&#x27;PushButton&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;String&#x27;</span>, <span class="string">&#x27;Shutdown&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;Callback&#x27;</span>, <span class="string">&#x27;shutVal = 1&#x27;</span>,<span class="string">&#x27;InnerPosition&#x27;</span>,[<span class="number">7</span>,<span class="number">30</span>,<span class="number">60</span>,<span class="number">20</span>]);</span><br><span class="line">H2 = uicontrol(<span class="string">&#x27;Style&#x27;</span>, <span class="string">&#x27;PushButton&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;String&#x27;</span>, <span class="string">&#x27;Stop&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;Callback&#x27;</span>, <span class="string">&#x27;stopVal = 1&#x27;</span>,<span class="string">&#x27;InnerPosition&#x27;</span>,[<span class="number">7</span>,<span class="number">60</span>,<span class="number">60</span>,<span class="number">20</span>]);</span><br><span class="line">H3 = uicontrol(<span class="string">&#x27;Style&#x27;</span>, <span class="string">&#x27;PushButton&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;String&#x27;</span>, <span class="string">&#x27;Start&#x27;</span>, ...</span><br><span class="line">                    <span class="string">&#x27;Callback&#x27;</span>, <span class="string">&#x27;startVal = 1&#x27;</span>,<span class="string">&#x27;InnerPosition&#x27;</span>,[<span class="number">7</span>,<span class="number">90</span>,<span class="number">60</span>,<span class="number">20</span>]);                </span><br><span class="line">h = <span class="built_in">scatter3</span>([],[],[],<span class="string">&#x27;filled&#x27;</span>);</span><br><span class="line">axis([-limit,limit,<span class="number">0</span>,limit,-limit,limit]);</span><br><span class="line">xlabel(<span class="string">&#x27;X (m)&#x27;</span>); ylabel(<span class="string">&#x27;Y (m)&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">%% main loop</span></span><br><span class="line"></span><br><span class="line">myInd = <span class="number">1</span>;</span><br><span class="line">lastreadTime = <span class="number">0</span>;</span><br><span class="line">dataOk = <span class="number">0</span>;</span><br><span class="line">stopVal = <span class="number">0</span>;</span><br><span class="line">startVal = <span class="number">0</span>;</span><br><span class="line">shutVal = <span class="number">0</span>;</span><br><span class="line">mask = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">tic</span><br><span class="line"><span class="keyword">while</span> (myInd &lt;= N)</span><br><span class="line">    dataOk = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">% Read the data from the radar:</span></span><br><span class="line">    <span class="keyword">if</span> mask ==<span class="number">1</span></span><br><span class="line">        pause(<span class="number">0.1</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        [dataOk, frameNumber, detObj] = readAndParseData(DATA_sphandle);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> stopVal == <span class="number">1</span></span><br><span class="line">        stopVal = <span class="number">0</span>;</span><br><span class="line">        mask = <span class="number">1</span>;</span><br><span class="line">        fprintf(CLI_sphandle, <span class="string">&#x27;sensorStop\n&#x27;</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> startVal == <span class="number">1</span></span><br><span class="line">        startVal = <span class="number">0</span>;</span><br><span class="line">        mask = <span class="number">0</span>;</span><br><span class="line">        fprintf(CLI_sphandle, <span class="string">&#x27;sensorStart 0\n&#x27;</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> shutVal == <span class="number">1</span></span><br><span class="line">        shutVal = <span class="number">0</span>;</span><br><span class="line">        fprintf(CLI_sphandle, <span class="string">&#x27;sensorStop\n&#x27;</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> dataOk == <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">% Store all the data from the radar</span></span><br><span class="line">        frame&#123;myInd&#125; = detObj;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">%% do process here</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">%% above</span></span><br><span class="line">                </span><br><span class="line">        <span class="comment">% Plot the radar points</span></span><br><span class="line">        h.XData = detObj.x;</span><br><span class="line">        h.YData = detObj.y;</span><br><span class="line">        h.ZData = detObj.z;</span><br><span class="line">        drawnow limitrate;</span><br><span class="line">        pause(<span class="number">0.05</span>);</span><br><span class="line">               </span><br><span class="line">        myInd = myInd + <span class="number">1</span>;     </span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">delete(instrfind);</span><br><span class="line">close all</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/05/08/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/mmWaveSensing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/05/08/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/mmWaveSensing/" class="post-title-link" itemprop="url">mmWaveSensing文献概要</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-08 10:51:59" itemprop="dateCreated datePublished" datetime="2021-05-08T10:51:59+08:00">2021-05-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-09 15:27:08" itemprop="dateModified" datetime="2021-05-09T15:27:08+08:00">2021-05-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Radar-Signal-Processing/" itemprop="url" rel="index"><span itemprop="name">Radar Signal Processing</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近一直在follow <em>Yingying Chen</em>和<em>Dina  Katabi</em>组的工作，那就先从19年Yingying Chen组里Jian Liu等人发的survey开始看起</p>
+<p><strong>Wireless Sensing for Human Activity: A Survey</strong>(10.1109/COMST.2019.2934489)</p>
+<p>目前典型的Wireless Sensing的workflow<br><img src="/2021/05/08/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/mmWaveSensing/wirelesssensingworkflow.png" alt></p>
+<p>对WIFI sensing的SOA大致分成了4类</p>
+<ol>
+<li>intrusion detection &amp; occupancy monitoring</li>
+<li>activ-ity &amp; gesture recognition</li>
+<li>vital signs monitoring</li>
+<li>useridentification &amp; localization.</li>
+</ol>
+<p>对Wireless sensing中的关键技术也是4类</p>
+<ol>
+<li>Received signal strength indicator (RSSI)</li>
+<li>channel stateinformation (CSI)</li>
+<li>frequency shift for frequency modulatedcarrier wave (FMCW)</li>
+<li>Doppler shift</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/05/08/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Clustering/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/05/08/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/Clustering/" class="post-title-link" itemprop="url">Clustering</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-08 10:50:21" itemprop="dateCreated datePublished" datetime="2021-05-08T10:50:21+08:00">2021-05-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-09 15:52:41" itemprop="dateModified" datetime="2021-05-09T15:52:41+08:00">2021-05-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Machine-Learning/" itemprop="url" rel="index"><span itemprop="name">Machine Learning</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://example.com/2020/12/01/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/BPnetwork/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -187,7 +523,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-08 10:35:25" itemprop="dateModified" datetime="2021-05-08T10:35:25+08:00">2021-05-08</time>
+                <time title="修改时间：2021-05-09 15:49:17" itemprop="dateModified" datetime="2021-05-09T15:49:17+08:00">2021-05-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -900,542 +1236,6 @@ e(n)=d(n)-\boldsymbol{w}^{H}(n-1) \boldsymbol{u}(n) \\
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="YXY">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bulijiojio Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/" class="post-title-link" itemprop="url">IMMKF</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-07-01 21:01:30" itemprop="dateCreated datePublished" datetime="2020-07-01T21:01:30+08:00">2020-07-01</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-08 10:35:53" itemprop="dateModified" datetime="2021-05-08T10:35:53+08:00">2021-05-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="交互多模型"><a href="#交互多模型" class="headerlink" title="交互多模型"></a>交互多模型</h1><h2 id="滤波模型"><a href="#滤波模型" class="headerlink" title="滤波模型"></a>滤波模型</h2><p>假定目标动态特性包含在以下模型集中：</p>
-<script type="math/tex; mode=display">
-\boldsymbol{x}_{k}=\boldsymbol{f}_{r_{k}}\left(\boldsymbol{x}_{k-1}, \boldsymbol{u}_{k}\right)+\boldsymbol{v}_{r_{k}}, \quad r_{k} \in\{1,2, \cdots, d\}</script><p>$r_{k}$ 是在状态空间内 $\{1,2, \cdots, d\}$ 满足一致性离散马尔可夫链的随机变量。</p>
-<p>目标状态的后验概率密度 $p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k}\right)$ 通过对联合概率密度各分量求和得</p>
-<script type="math/tex; mode=display">
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k}\right)=\sum_{i=1}^{d} p\left(\boldsymbol{x}_{k}, r_{k}=i \mid \boldsymbol{y}^{k}\right)</script><p>利用条件概率引理，上述方程右侧的联合概率密度可以分解为两项之积，即</p>
-<script type="math/tex; mode=display">
-p\left(\boldsymbol{x}_{k}, r_{k}=i \mid \boldsymbol{y}^{k}\right)=p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)</script><p>令 $\mu_{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right),$ 后验概率密度可以表示为</p>
-<script type="math/tex; mode=display">
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k}\right)=\sum_{i=1}^{d} p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right) \mu_{k \mid k}(i)</script><p>将 $\boldsymbol{y}^{k}$ 展开为 $\left\{\boldsymbol{y}_{k}, \boldsymbol{y}^{k-1}\right\}$,利用贝叶斯理论可以得到上述方程右侧求和第一项的递推式:</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right) &=p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}_{k}, \boldsymbol{y}^{k-1}\right) \\
-&=\frac{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right)} p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right)
-\end{aligned}</script><p>式中: $p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right)$ 为预测概率密度 $; p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right)$ 为似然函数 ; $p(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}$ ) 为归一化因子。 式(3.45)的求和分量第二项 $\mu_{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)$ 也可以通过递推计算。同 样将 $\boldsymbol{y}^{k}$ 展开为 $\left\{\boldsymbol{y}_{k}, \boldsymbol{y}^{k-1}\right\},$ 利用贝叶斯理论可得</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k}(i)=p\left(r_{k}=i \mid \boldsymbol{y}_{k}, \boldsymbol{y}^{k-1}\right)=\frac{p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)}
-\end{aligned}</script><p>令 $p\left(r_{k}=i \mid \mathbf{y}^{k-1}\right)=\boldsymbol{\mu}_{k \mid k-1}(i),$ 条件模型概率可表示为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k}(i)=\frac{p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) \mu_{k \mid k-1}(i)}{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)}
-\end{aligned}</script><p>式中: $\mu_{k \mid k-1}(i)$ 为模型预测概率 $; p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right)$ 为似然函数 $; p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)$ 为归一<br>化因子。</p>
-<h3 id="某一模型的状态的预测概率密度和预测的模型概率"><a href="#某一模型的状态的预测概率密度和预测的模型概率" class="headerlink" title="某一模型的状态的预测概率密度和预测的模型概率"></a>某一模型的状态的预测概率密度和预测的模型概率</h3><script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) &=\int_{\boldsymbol{x}_{k-1}} p\left(\boldsymbol{x}_{k} \mid \boldsymbol{x}_{k-1}, r_{k}=i, \boldsymbol{y}^{k-1}\right) \sum_{j=1}^{d} p\left(\boldsymbol{x}_{k-1} \mid r_{k-1}\right.\\
-&\left.=j, \boldsymbol{y}^{k-1}\right) \mu_{k-11 k}^{j i} \mathrm{d} \boldsymbol{x}_{k-1} \\
-&=\int_{\boldsymbol{x}_{k-1}} N\left(\boldsymbol{x}_{k} ; \boldsymbol{F}_{i} \boldsymbol{x}_{k-1}+\boldsymbol{u}_{i}, \boldsymbol{Q}_{i}\right) N\left(\boldsymbol{x}_{k-1} ; \hat{\boldsymbol{x}}_{k-1 \mid k-1}^{0 i}, \boldsymbol{P}_{k-1 \mid k-1}^{0 i}\right) \mathrm{d} \boldsymbol{x}_{k-1} \\
-&=N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k-1}^{i}, \boldsymbol{P}_{k \mid k-1}^{i}\right)
-\end{aligned}</script><p>其中，均值和协方差分别为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\hat{\boldsymbol{x}}_{k \mid k-1}^{i} =\boldsymbol{F}_{\boldsymbol{i}} \hat{\boldsymbol{x}}_{k-1 \mid k-1}^{0 i}+\boldsymbol{u}_{i} \\
-\boldsymbol{P}_{k \mid k-1}^{i}= \boldsymbol{F}_{i} \boldsymbol{P}_{k-1 \mid k-1}^{0 i} \boldsymbol{F}_{i}^{\mathrm{T}}+\boldsymbol{Q}_{i}
-\end{aligned}</script><p>预测模型概率 $\mu_{k \mid k-1}(i)$ 可以展开为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k-1}(i) &=p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right) \\
-&=\sum_{j=1}^{d} p\left(r_{k}=i \mid r_{k-1}=j, \boldsymbol{y}^{k-1}\right) p\left(r_{k-1}=j \mid \boldsymbol{y}^{k-1}\right) \\
-&=\sum_{j=1}^{d} \Gamma_{j i} p\left(r_{k-1}=j \mid \boldsymbol{y}^{k-1}\right) \\
-&=\sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)
-\end{aligned}</script><h3 id="似然函数"><a href="#似然函数" class="headerlink" title="似然函数"></a>似然函数</h3><script type="math/tex; mode=display">
-p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right)=p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}\right)=N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \boldsymbol{x}_{k}, \boldsymbol{R}_{k}\right)</script><p>令$\lambda_{k}(i)=p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right)$则 $\lambda_{k}(i)=N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}_{k-1 \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)$</p>
-<h3 id="归一化因数"><a href="#归一化因数" class="headerlink" title="归一化因数"></a>归一化因数</h3><script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right) &=\sum_{i=1}^{d} p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right) \\
-&=\sum_{i=1}^{d} \lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)
-\end{aligned}</script><h3 id="条件概率密度和条件模型概率"><a href="#条件概率密度和条件模型概率" class="headerlink" title="条件概率密度和条件模型概率"></a>条件概率密度和条件模型概率</h3><p>条件概率密度展开为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right) &=\frac{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}, r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \mathbf{y}^{k-1}\right)}{p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \mathbf{y}^{k-1}\right)} \\
-&=\frac{N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \boldsymbol{x}_{k}, \boldsymbol{R}_{k}\right) N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k-1}^{i}, \boldsymbol{P}_{k \mid k-1}^{i}\right)}{N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)}
-\end{aligned}</script><p>条件概率密度可以近似为高斯分布, 即 $p\left(\boldsymbol{x}_{k} \mid r_{k}=i, \boldsymbol{y}^{k}\right)=N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k}^{i}, \boldsymbol{P}_{k \mid k}^{i}\right),$ 其<br>均值和协方差为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\hat{\boldsymbol{x}}_{k \mid k}^{i}=\hat{\boldsymbol{x}}_{k \mid k-1}^{i}+\boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)^{-1}\left(\boldsymbol{y}_{k}-\boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}^{i}\right) \\
-\boldsymbol{P}_{k \mid k}^{i}=\boldsymbol{P}_{k \mid k-1}^{i}-\boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)^{-1} \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i}
-\end{aligned}</script><p>条件模型概率 $p\left(r_{k}=i \mid \boldsymbol{y}^{k}\right)$ 为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k}(i)=\frac{p\left(\boldsymbol{y}_{k} \mid r_{k}=i, \boldsymbol{y}^{k-1}\right) p\left(r_{k}=i \mid \boldsymbol{y}^{k-1}\right)}{p\left(\boldsymbol{y}_{k} \mid \boldsymbol{y}^{k-1}\right)}
-\end{aligned}</script><p>经简化可得</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k}(i)=\frac{\lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)}{\sum_{l=1}^{d} \lambda_{k}(l) \sum_{m=1}^{d} \Gamma_{m l} \mu_{k-1 \mid k-1}(m)}
-\end{aligned}</script><h2 id="IMM迭代计算方程"><a href="#IMM迭代计算方程" class="headerlink" title="IMM迭代计算方程"></a>IMM迭代计算方程</h2><ol>
-<li><strong>for 对于每一个模型 i do</strong><br>模型预测概率<script type="math/tex; mode=display">
-\mu_{k \mid k-1}(i)=p\left(r_{k}=i \mid y^{k-1}\right)=\sum_{j=1}^{d} \Gamma_{ji} \mu_{k-1 \mid k-1}(j)</script>混合模型概率<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k-1}^{j \mid i}=p\left(r_{k-1}=j \mid r_{k}=i, y^{k-1}\right)=\frac{\Gamma_{ji} \mu_{k-1 \mid k-1}(j)}{\sum_{m=1}^{d} \Gamma_{m i} \mu_{k-1 \mid k-1}(m)}
-\end{aligned}</script>混合状态和协方差<script type="math/tex; mode=display">
-\hat{\boldsymbol{x}}_{k-1 \mid k-1}^{0 i}=\sum_{j=1}^{d}\mu_{k \mid k-1}^{j \mid i}\hat{\boldsymbol{x}}_{k-1 \mid k-1}^{j}</script><script type="math/tex; mode=display">
-\boldsymbol{P}_{k-1 \mid k-1}^{0 i}=\sum_{j=1}^{d} \boldsymbol{\mu}_{k \mid k-1}^{j \mid i}\left\{\boldsymbol{P}_{k-1 \mid k-1}^{j}+\left[\hat{\boldsymbol{x}}_{k-1 \mid k-1}^{j}-\boldsymbol{x}_{k-1 \mid k-1}^{0 i}\right]\left[\hat{\boldsymbol{x}}_{k-1 \mid k-1}^{j}-\hat{\boldsymbol{x}}_{k-1 \mid k-1}^{0 i}\right]^{\mathrm{T}}\right\}</script><strong>end for</strong></li>
-<li><strong>for 对于每一个模型 i do</strong><br>预测目标状态<script type="math/tex; mode=display">
-\hat{\boldsymbol{x}}_{k \mid k-1}^{i}=\boldsymbol{F}_{i} \hat{\boldsymbol{x}}_{k-1 \mid k-1}^{0 i}+\boldsymbol{u}_{i}</script>预测协方差<script type="math/tex; mode=display">
-\boldsymbol{P}_{k \mid k-1}^{i}=\boldsymbol{F}_{i} \boldsymbol{P}_{k-1 \mid k-1}^{0 i} \boldsymbol{F}_{i}^{T}+\boldsymbol{Q}_{i}</script>状态更新<script type="math/tex; mode=display">
-\hat{\boldsymbol{x}}_{k \mid k}^{i}=\hat{\boldsymbol{x}}_{k \mid k-1}^{i}+\boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{T}\left(\boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{T}+\boldsymbol{R}_{k}\right)^{-1}\left(\boldsymbol{y}_{k}-\boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}^{i}\right)</script>协方差更新<script type="math/tex; mode=display">
-\boldsymbol{P}_{k \mid k}^{i}=\boldsymbol{P}_{k \mid k-1}^{i}-\boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}\left(\boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}\right)^{-1} \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i}</script>模型似然函数<script type="math/tex; mode=display">
-\lambda_{k}(i)=N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}^{i}, \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}^{i} \boldsymbol{H}^{T}+\boldsymbol{R}_{k}\right)</script><strong>end for</strong><br>模型概率：<script type="math/tex; mode=display">
-\begin{aligned}
-\mu_{k \mid k}(i)=\frac{\lambda_{k}(i) \sum_{j=1}^{d} \Gamma_{j i} \mu_{k-1 \mid k-1}(j)}{\sum_{l=1}^{d} \lambda_{k}(l) \sum_{m=1}^{d} \Gamma_{m l} \mu_{k-1 \mid k-1}(m)}
-\end{aligned}</script>条件均值：<script type="math/tex; mode=display">
-\hat{\boldsymbol{x}}_{k \mid k}=\sum_{i=1}^{d} \hat{\boldsymbol{x}}_{k \mid k}^{i} \boldsymbol{\mu}_{k \mid k}(i)</script>条件协方差：<script type="math/tex; mode=display">
-\boldsymbol{P}_{k \mid k}=\sum_{i=1}^{d}\left[\boldsymbol{P}_{k \mid k}^{i}+\left(\hat{\boldsymbol{x}}_{k \mid k}-\hat{\boldsymbol{x}}_{k \mid k}^{i}\right)\left(\hat{\boldsymbol{x}}_{k \mid k}-\hat{\boldsymbol{x}}_{k \mid k}^{i}\right)^{\mathrm{T}}\right] \boldsymbol{\mu}_{k \mid k}(i)</script></li>
-</ol>
-<h2 id="仿真"><a href="#仿真" class="headerlink" title="仿真"></a>仿真</h2><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line">clc;close <span class="built_in">all</span>;clear <span class="built_in">all</span>;</span><br><span class="line"></span><br><span class="line">simTime<span class="built_in">=</span><span class="number">100</span>;      <span class="comment">%仿真迭代次数</span></span><br><span class="line">T<span class="built_in">=</span><span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">d <span class="built_in">=</span> <span class="number">3</span>;<span class="comment">%模型数</span></span><br><span class="line"></span><br><span class="line">w2<span class="built_in">=</span><span class="number">3</span>*<span class="number">2</span>*pi/<span class="number">360</span>;     <span class="comment">%模型2转弯率3度</span></span><br><span class="line">w3<span class="built_in">=</span>-<span class="number">3</span>*<span class="number">2</span>*pi/<span class="number">360</span>;    <span class="comment">%模型3转弯率-3度</span></span><br><span class="line">H<span class="built_in">=</span>[<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>;<span class="number">0</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="number">0</span>];                      <span class="comment">%模型量测矩阵</span></span><br><span class="line">G<span class="built_in">=</span>[T^<span class="number">2</span>/<span class="number">2</span>,<span class="number">0</span>;T,<span class="number">0</span>;<span class="number">0</span>,T^<span class="number">2</span>/<span class="number">2</span>;<span class="number">0</span>,T];              <span class="comment">%模型过程噪声加权矩阵</span></span><br><span class="line">r<span class="built_in">=</span><span class="number">100</span>;                                 <span class="comment">%20 2000</span></span><br><span class="line">R<span class="built_in">=</span>[r,<span class="number">0</span>;<span class="number">0</span>,r];                           <span class="comment">%模型量测噪声协方差矩阵</span></span><br><span class="line">Q<span class="built_in">=</span>G*[<span class="number">10</span>,<span class="number">0</span>;<span class="number">0</span>,<span class="number">10</span>]*G<span class="string">&#x27;;                      %模型过程噪声协方差矩阵</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,1)=[1,T,0,0;0,1,0,0;0,0,1,T;0,0,0,1];     %模型1状态转移矩阵</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,2)=[1,sin(w2*T)/w2,0,(cos(w2*T)-1)/w2;</span></span><br><span class="line"><span class="string">    0,cos(w2*T),0,sin(w2*T);</span></span><br><span class="line"><span class="string">    0,(1-cos(w2*T))/w2,1,sin(w2*T)/w2;</span></span><br><span class="line"><span class="string">    0,-sin(w2*T),0,cos(w2*T)];            %模型2状态转移矩阵 左转弯</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">F(:,:,3)=[1,sin(w3*T)/w3,0,(cos(w3*T)-1)/w3;</span></span><br><span class="line"><span class="string">    0,cos(w3*T),0,sin(w3*T);</span></span><br><span class="line"><span class="string">    0,(1-cos(w3*T))/w3,1,sin(w3*T)/w3;</span></span><br><span class="line"><span class="string">    0,-sin(w3*T),0,cos(w3*T)];            %模型3状态转移矩阵 右转弯</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">x = zeros(4,simTime);</span></span><br><span class="line"><span class="string">z_k = zeros(2,simTime);         %含噪声量测数据</span></span><br><span class="line"><span class="string">measureNoise = zeros(2,simTime);</span></span><br><span class="line"><span class="string">measureNoise = sqrt(R)*randn(2,simTime);  %产生量测噪声</span></span><br><span class="line"><span class="string">x(:,1)=[1000,200,1000,200]&#x27;</span>;</span><br><span class="line">z_k(:,<span class="number">1</span>)<span class="built_in">=</span>H*x(:,<span class="number">1</span>)+measureNoise(:,<span class="number">1</span>);</span><br><span class="line">for a<span class="built_in">=</span><span class="number">2</span>:simTime</span><br><span class="line">    <span class="built_in">if</span> (a&gt;<span class="built_in">=</span><span class="number">20</span>)&amp;&amp;(a<span class="built_in">&lt;=</span><span class="number">40</span>) </span><br><span class="line">        x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">2</span>)*x(:,a-<span class="number">1</span>);      <span class="comment">%20--40s左转 </span></span><br><span class="line">    elseif (a&gt;<span class="built_in">=</span><span class="number">60</span>)&amp;&amp;(a<span class="built_in">&lt;=</span><span class="number">80</span>) </span><br><span class="line">       x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">3</span>)*x(:,a-<span class="number">1</span>);        <span class="comment">%60--80s右转 </span></span><br><span class="line">    <span class="built_in">else</span></span><br><span class="line">        x(:,a)<span class="built_in">=</span>F(:,:,<span class="number">1</span>)*x(:,a-<span class="number">1</span>);      <span class="comment">%匀速直线运动</span></span><br><span class="line">    end</span><br><span class="line">z_k(:,a)<span class="built_in">=</span>H*x(:,a)+measureNoise(:,a);</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">xkki(:,<span class="number">1</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型1IMM算法状态估计值</span></span><br><span class="line">xkki(:,<span class="number">2</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型2IMM算法状态估计值</span></span><br><span class="line">xkki(:,<span class="number">3</span>) <span class="built_in">=</span> x(:,<span class="number">1</span>);      <span class="comment">%模型3IMM算法状态估计值</span></span><br><span class="line"></span><br><span class="line">xkk <span class="built_in">=</span> zeros(<span class="number">4</span>,simTime);      <span class="comment">%IMM算法模型综合状态估计值</span></span><br><span class="line">pkk<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>,simTime);      <span class="comment">%IMM算法模型综合状态协方差矩阵</span></span><br><span class="line">pkki(:,:,<span class="number">1</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">pkki(:,:,<span class="number">2</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">pkki(:,:,<span class="number">3</span>)<span class="built_in">=</span>zeros(<span class="number">4</span>,<span class="number">4</span>);      <span class="comment">%IMM算法各模型协方差矩阵</span></span><br><span class="line"></span><br><span class="line">xkk(:,<span class="number">1</span>)<span class="built_in">=</span>x(:,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">Sigmaji<span class="built_in">=</span>[<span class="number">0.9</span>,<span class="number">0.05</span>,<span class="number">0.05</span>;</span><br><span class="line">         <span class="number">0.1</span>,<span class="number">0.8</span>,<span class="number">0.1</span>;</span><br><span class="line">         <span class="number">0.05</span>,<span class="number">0.15</span>,<span class="number">0.8</span>];    <span class="comment">%模型转移概率矩阵</span></span><br><span class="line"></span><br><span class="line">ukk<span class="built_in">=</span>zeros(<span class="number">3</span>,simTime);</span><br><span class="line">ukk(:,<span class="number">1</span>)<span class="built_in">=</span>[<span class="number">0.3</span> <span class="number">0.3</span> <span class="number">0.4</span>]<span class="string">&#x27;;  %IMM算法模型概率</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">for t=1:simTime-1</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    %第一步Interacting（只针对IMM算法）</span></span><br><span class="line"><span class="string">    ukk_1=Sigmaji&#x27;</span>*ukk(:,t);</span><br><span class="line">    </span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        uji(:,i)<span class="built_in">=</span>(<span class="number">1</span>/ukk_1(i))*Sigmaji(:,i).*ukk(:,t);<span class="comment">%计算模型混合概率     </span></span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    <span class="comment">% 计算各模型滤波初始化条件</span></span><br><span class="line">    <span class="comment">% 各模型滤波初始状态</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        x0(:,i) <span class="built_in">=</span> xkki * uji(:,i);</span><br><span class="line">    end </span><br><span class="line">    </span><br><span class="line">    <span class="comment">%各模型滤波初始状态协方差矩阵</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        temp <span class="built_in">=</span> zeros(<span class="number">4</span>,<span class="number">4</span>);</span><br><span class="line">        for k <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">            temp <span class="built_in">=</span> temp + pkki(:,:,k)+(xkki(:,i)-x0(:,i))*(xkki(:,i)-x0(:,i))<span class="string">&#x27;*uji(k,i);</span></span><br><span class="line"><span class="string">        end</span></span><br><span class="line"><span class="string">        P0(:,:,i) = temp;  </span></span><br><span class="line"><span class="string">    end</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    % kalman滤波并且计算似然函数值</span></span><br><span class="line"><span class="string">    for i = 1:d</span></span><br><span class="line"><span class="string">        [xkki(:,i),pkki(:,:,i),xkk_1,pkk_1] = Kalman(z_k(:,t),x0(:,i),F(:,:,i),H,P0(:,:,i),Q,R);</span></span><br><span class="line"><span class="string">        lambda(i) = (1/sqrt(abs(2*pi*(det(H*pkk_1*H&#x27;</span>+R)))))*exp((-<span class="number">1</span>/<span class="number">2</span>)*((z_k(:,t)-H*xkk_1)<span class="string">&#x27;*inv(H*pkk_1*H&#x27;</span>+R)*(z_k(:,t)-H*xkk_1)));</span><br><span class="line">    end</span><br><span class="line">    lambda <span class="built_in">=</span> lambda/sum(lambda);</span><br><span class="line"><span class="comment">%     条件模型概率</span></span><br><span class="line">    for i <span class="built_in">=</span> <span class="number">1</span>:d</span><br><span class="line">        ukk(i,t+<span class="number">1</span>) <span class="built_in">=</span> lambda(i) * ukk_1(i)./lambda*ukk_1;</span><br><span class="line">    end</span><br><span class="line">    ukk(:,t+<span class="number">1</span>) <span class="built_in">=</span> ukk(:,t+<span class="number">1</span>)/sum(ukk(:,t+<span class="number">1</span>));</span><br><span class="line"><span class="comment">%     ukk(:,t+1) = 1/(lambda*ukk_1).*lambda&#x27;.*ukk_1;</span></span><br><span class="line">    xkk(:,t+<span class="number">1</span>) <span class="built_in">=</span> xkki * ukk(:,t+<span class="number">1</span>);</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">grid on</span><br><span class="line">plot(x(<span class="number">1</span>,:),x(<span class="number">3</span>,:));</span><br><span class="line">plot(xkk(<span class="number">1</span>,:),xkk(<span class="number">3</span>,:));</span><br><span class="line">plot(z_k(<span class="number">1</span>,:),z_k(<span class="number">2</span>,:));</span><br><span class="line">xlabel(<span class="string">&#x27;x axis(m)&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;y axis(m)&#x27;</span>);</span><br><span class="line">legend(<span class="string">&#x27;真实值&#x27;</span>,<span class="string">&#x27;预测值&#x27;</span>,<span class="string">&#x27;测量值&#x27;</span>);</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">grid on</span><br><span class="line">plot(ukk(<span class="number">1</span>,:),<span class="string">&#x27;k:&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(ukk(<span class="number">2</span>,:),<span class="string">&#x27;r-.&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(ukk(<span class="number">3</span>,:),<span class="string">&#x27;b--&#x27;</span>,<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">title(<span class="string">&#x27;IMM模型概率曲线&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;次数序号(s)&#x27;</span>); ylabel(<span class="string">&#x27;模型概率&#x27;</span>);</span><br><span class="line">legend(<span class="string">&#x27;模型1&#x27;</span>,<span class="string">&#x27;模型2&#x27;</span>,<span class="string">&#x27;模型3&#x27;</span>);</span><br><span class="line"></span><br><span class="line">function [x_est,P_k_k,x_pre,P] <span class="built_in">=</span> Kalman(z_k,x_est_k_minus1,F,H,P_k,Q,R)</span><br><span class="line">   x_pre <span class="built_in">=</span> F*x_est_k_minus1;</span><br><span class="line">   P <span class="built_in">=</span> F*P_k*F<span class="string">&#x27; + Q;</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   z_pre = H*x_pre;</span></span><br><span class="line"><span class="string">   S = H*P*H&#x27;</span> + R;</span><br><span class="line">   K <span class="built_in">=</span> P*H<span class="string">&#x27;/(S);</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   x_est = x_pre + K*(z_k - z_pre);</span></span><br><span class="line"><span class="string">   P_k_k = (eye(size(K*H,1))-K*H)*P;</span></span><br><span class="line"><span class="string">end</span></span><br></pre></td></tr></table></figure>
-<p><img src="/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/IMMKFpos.png" alt><br><img src="/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/IMMKFmodelpdf.png" alt></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="YXY">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bulijiojio Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/" class="post-title-link" itemprop="url">UKF</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-30 21:01:30" itemprop="dateCreated datePublished" datetime="2020-06-30T21:01:30+08:00">2020-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-08 10:35:37" itemprop="dateModified" datetime="2021-05-08T10:35:37+08:00">2021-05-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="不敏卡尔曼滤波"><a href="#不敏卡尔曼滤波" class="headerlink" title="不敏卡尔曼滤波"></a>不敏卡尔曼滤波</h1><p>首先讨论这样的一个问题一个满足高斯分布的随机变量经过非线性系统的输出随机变量的分布如何确定呢？<br>如果采用蒙特卡洛估方法。下图，在原高斯分布中采样，很多采样点（该图中是500000个画出来的），将采样点通过非线性变换，再统计变换后的结果的均值与方差，近似用一个高斯分布表示。这种方法的缺点很明显，计算量巨大，特别是在高维时。<br><img src="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-5fa5a884252ff22b0210f22bd54b641e_720w.jpg" alt></p>
-<p>或者说我们如何得到输出变量的一阶二阶标准矩？<br>考虑一个随机变量 $\boldsymbol{x} \in \mathbb{R}^{n}$ 和非线性变换 $\boldsymbol{g}: \mathbb{R}^{n} \rightarrow \mathbb{R}^{m}$。$z$的均值可以表示为</p>
-<script type="math/tex; mode=display">
-E(z)=\int g(\boldsymbol{x}) p(\boldsymbol{x}) d \boldsymbol{x}</script><p>实际上这样的计算在大多数情况下是无法计算的（工程）。<br>而在目标跟踪的过程中其实只要能够数值近似$E(z)$和$D(z)$,在这里采用不敏变换</p>
-<h2 id="不敏变换（UT）"><a href="#不敏变换（UT）" class="headerlink" title="不敏变换（UT）"></a>不敏变换（UT）</h2><p>基本思路：通过定义域上非均匀采样点的函数值进行加权求和</p>
-<p>UT变换的步骤：</p>
-<ol>
-<li>Choose Sigma Points</li>
-<li>Transform Sigma Points</li>
-<li>Compute Weighted Mean And Covariance of Transformed Sigma Points</li>
-</ol>
-<h3 id="Choose-Sigma-Points"><a href="#Choose-Sigma-Points" class="headerlink" title="Choose Sigma Points"></a>Choose Sigma Points</h3><p>$N$维的高斯分布选择$2N+1$个Sigma点$\chi^{1},\chi^{2}\cdots \chi^{2N+1}$，$w^{1}，w^{2}\cdots w^{2N+1}$表示对应的权值，要求Sigma点的均值方差收敛于原均值与方差</p>
-<script type="math/tex; mode=display">
-\begin{array}{l}
-\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} \chi^{i}=E(\boldsymbol{x}) \\
-\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(\boldsymbol{x})\right]\left[\chi^{i}-E(\boldsymbol{x})\right]^{\mathrm{T}}=\operatorname{cov}(\boldsymbol{x})
-\end{array}</script><p>令 ${Z}^{i}=\boldsymbol{g}\left(\chi^{i}\right), i=1, \cdots, 2N+1$ 表示在第 $i$ 个 $\operatorname{sigma}$ 点处的函数值。 $z$ 均值的 UT $\mathbb{近}$<br>似可以表示为</p>
-<script type="math/tex; mode=display">
-\widehat{E(z)}=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i} {Z}^{i}</script><p>z的协方差矩阵以及 z 和 x 的互协方差，通过 UT 近似计算可以得到</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\widehat{\operatorname{cov}(z)} &=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[Z^{i}-\widehat{E(z)}\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}} \\
-\widehat{\operatorname{cov}(x, z)} &=\frac{1}{2N+1} \sum_{i=1}^{2N+1} w^{i}\left[\chi^{i}-E(x)\right]\left[{Z}^{i}-\widehat{E(z)}\right]^{\mathrm{T}}
-\end{aligned}</script><p>Sigma点的选择有很多种在这里选择，采用如下的方法：</p>
-<script type="math/tex; mode=display">\chi^{i} = \boldsymbol{\mu} + \boldsymbol{\sigma}^{i}</script><p>其中</p>
-<ul>
-<li>$\boldsymbol{\mu}=E(\boldsymbol{x})$</li>
-<li>$\boldsymbol{\sigma}^{1} = \boldsymbol{0}$，$[\boldsymbol{\sigma}^{2} \cdots \boldsymbol{\sigma}^{N+1}] = \boldsymbol{A}(\boldsymbol{\sigma}^{N+i+1}=-\boldsymbol{\sigma}^{i+1}, i=1, \cdots, N)$,$\boldsymbol{A}$是$(N+\kappa)\boldsymbol{\Sigma}$的Cholesky分解，即满足$\boldsymbol{A}\boldsymbol{A}^T=(N+\kappa)\boldsymbol{\Sigma}$</li>
-</ul>
-<p>$\chi^{i}$对应的权值为</p>
-<script type="math/tex; mode=display">
-w^{i}=\left\{\begin{array}{ll}
-\kappa /(N+\kappa) & i=1 \\
-0.5 /(N+\kappa) & i=2, \cdots, 2 N+1
-\end{array}\right.</script><p>用图像可以形象的表示出来(2维的情况)<br><img src="/2020/06/30/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/UKF/v2-f796ba1537f34f03eb608cdc299254df_1440w.jpg" alt></p>
-<h2 id="不敏卡尔曼滤波算法"><a href="#不敏卡尔曼滤波算法" class="headerlink" title="不敏卡尔曼滤波算法"></a>不敏卡尔曼滤波算法</h2><p>(1) 确定 sigma 点 $\chi_{k-1}^{1}, \cdots, \chi_{k-1}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(2) 计算 sigma 点的转换 $\chi_{k}^{i}=f\left(\chi_{k-1}^{i}\right), i=1, \cdots, 2N+1$。<br>(3) 计算状态预测统计量</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\hat{\boldsymbol{x}}_{k \mid k-1}=\sum_{i=1}^{2N+1} w^{i} \chi_{k}^{i} \\
-\boldsymbol{P}_{k \mid k-1}=\boldsymbol{Q}_{k}+\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)^{\mathrm{T}}
-\end{array}</script><p>(4) 确定均值 $\hat{\boldsymbol{x}}_{k \mid k-1}$ 和方差 $\boldsymbol{P}_{k \mid k-1}$ 的 $\operatorname{sigma}$ 点 $\chi_{k}^{1}, \cdots, \chi_{k}^{2N+1}$ 和权值 $w^{1}, \cdots, w^{2N+1}$<br>(5) 计算 sigma 点的转换 $\nu_{k}^{i}=\boldsymbol{h}\left(\chi_{k}^{i}\right), i=1, \cdots, 2N+1$。<br>(6)计算观测预测统计量</p>
-<script type="math/tex; mode=display">
-\begin{array}{l}
-\hat{\boldsymbol{y}}_{k \mid k-1}=\sum_{i=1}^{2N+1} w^{i} \boldsymbol{\nu}_{k}^{i} \\
-\boldsymbol{S}_{k}=\boldsymbol{R}_{k}+\sum_{i=1}^{2N+1} w^{i}\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)^{\mathrm{T}} \\
-\boldsymbol{\Psi}_{k}=\sum_{i=1}^{2N+1} w^{i}\left(\chi_{k}^{i}-\hat{\boldsymbol{x}}_{k \mid k-1}\right)\left(\nu_{k}^{i}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)^{\mathrm{T}}
-\end{array}</script><p>(7) 计算后验均值和方差矩阵</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-\hat{\boldsymbol{x}}_{k} &=\hat{\boldsymbol{x}}_{k \mid k-1}+\boldsymbol{\Psi}_{k} \boldsymbol{S}_{k}^{-1}\left(\boldsymbol{y}_{k}-\hat{\boldsymbol{y}}_{k \mid k-1}\right) \\
-\boldsymbol{P}_{k \mid k}&= \boldsymbol{P}_{k \mid k-1}-\boldsymbol{\Psi}_{k} \boldsymbol{S}_{k}^{-1} \boldsymbol{\Psi}_{k}^{\mathrm{T}}
-\end{aligned}</script>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="YXY">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bulijiojio Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/" class="post-title-link" itemprop="url">KF</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-29 21:01:30" itemprop="dateCreated datePublished" datetime="2020-06-29T21:01:30+08:00">2020-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-08 10:32:29" itemprop="dateModified" datetime="2021-05-08T10:32:29+08:00">2021-05-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="卡尔曼滤波"><a href="#卡尔曼滤波" class="headerlink" title="卡尔曼滤波"></a>卡尔曼滤波</h1><h2 id="假设条件"><a href="#假设条件" class="headerlink" title="假设条件"></a>假设条件</h2><p><strong>A1</strong> 目标动态和观测方程是线性的：</p>
-<script type="math/tex; mode=display">
-\begin{array}{l}
-\mathbf{x}_{k}= \mathbf{F} \mathbf{x}_{k-1}+\mathbf{v}_{k} \\
-\mathbf{y}_{k}=\mathbf{H} x_{k}+\mathbf{w}_{k}
-\end{array}</script><p><strong>A2</strong> $\mathbf{v}_{k}$ 和 $\mathbf{w}_{k}$ 是均值为突且噪声协方差分别为 $\mathbf{Q}_{k}$ 和 $\mathbf{R}_{k}$ 的高斯白噪声<br><strong>A3</strong> $k-1$ 时刻后验概率密度 $p\left(\mathbf{x}_{k-1} \mid \mathbf{y}^{k-1}\right)$ 是均值为 $\hat{\mathbf{x}}_{k-1| k-1}$，方差为$\mathbf{P}_{k-1 | k-1}$的高斯形式。</p>
-<h2 id="高斯分布与高斯乘积定理"><a href="#高斯分布与高斯乘积定理" class="headerlink" title="高斯分布与高斯乘积定理"></a>高斯分布与高斯乘积定理</h2><p>首先规定一下高斯密度函数，由于求解后验概率密度时需要有概率密度函数相乘，所以我们很感兴趣两个概率密度函数相乘后满足怎样的分布</p>
-<script type="math/tex; mode=display">
-N(z ; \mathbf{\mu}, \mathbf{\Sigma})=\frac{1}{\sqrt{2 \pi|\mathbf{\Sigma}| }} \exp \left[-(z-\mathbf{\mu})^{\mathrm{T}} \mathbf{\Sigma}^{-1}(z-\mathbf{\mu}) / 2\right]</script><p>高斯乘积定理: 给定 $\mathbf{x}_{1}, \mathbf{\mu}_{1} \in \mathbb{R}^{d_{1}}, \mathbf{H} \in \mathbb{R}^{d_{2} \times d_{1}}, \mathbf{x}_{2} \in \mathbb{R}^{d_{2}}$ 和正定矩阵$\mathbf{P}_{1}, \mathbf{P}_{2}$</p>
-<script type="math/tex; mode=display">
-N\left(\mathbf{x}_{2} ; \mathbf{H} \mathbf{x}_{1}, \mathbf{P}_{2}\right) N\left(\mathbf{x}_{1} ; \mathbf{\mu}_{1}, \mathbf{P}_{1}\right)=N\left(\mathbf{x}_{2} ; \mathbf{H} \mathbf{\mu}_{1}, \mathbf{P}_{3}\right) N\left(\mathbf{x}_{1} ; \mathbf{\mu}, \mathbf{P}\right)</script><p>其中</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\mathbf{P}_{3}=\mathbf{H} \mathbf{P}_{1} \mathbf{H}^{\mathrm{T}}+\mathbf{P}_{2} \\
-\mathbf{\mu}=\mathbf{\mu}_{1}+\mathbf{K}\left(\mathbf{x}_{2}-\mathbf{H} \mathbf{\mu}_{1}\right) \\
-\mathbf{P}=\mathbf{P}_{1}+\mathbf{K} \mathbf{H} \mathbf{P}_{1} \\
-\mathbf{K}=\mathbf{P}_{1} \mathbf{H}^{\mathrm{T}} \mathbf{P}_{3}^{-1}
-\end{array}</script><h2 id="卡尔曼迭代"><a href="#卡尔曼迭代" class="headerlink" title="卡尔曼迭代"></a>卡尔曼迭代</h2><h3 id="预测函数"><a href="#预测函数" class="headerlink" title="预测函数"></a>预测函数</h3><p>状态转移函数</p>
-<script type="math/tex; mode=display">p\left(\boldsymbol{x}_{k} \mid \boldsymbol{x}_{k-1}\right)=N\left(\boldsymbol{x}_{k} ; \boldsymbol{F} \boldsymbol{x}_{k-1}, \boldsymbol{Q}_{k}\right)</script><p>假定$k-1$时刻的目标状态后验概率密度函数$p(\boldsymbol{x}_{k-1} | \boldsymbol{y}^{k-1}) = N(\boldsymbol{x}_{k-1};\left.\hat{\boldsymbol{x}}_{k-1 \mid k-1}, \boldsymbol{P}_{k-1 \mid k-1}\right)$</p>
-<p>预测概率密度函数</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k-1}\right) &=\int p\left(\boldsymbol{x}_{k} \mid \boldsymbol{x}_{k-1}\right) p\left(\boldsymbol{x}_{k-1} \mid \boldsymbol{y}^{k-1}\right) \mathrm{d} \boldsymbol{x}_{k-1} \\
-&=\int N\left(\boldsymbol{x}_{k} ; \boldsymbol{F} \boldsymbol{x}_{k-1}, \boldsymbol{Q}_{k}\right) N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k-1 \mid k-1}, \boldsymbol{P}_{k \mid k-1}\right) \mathrm{d} \boldsymbol{x}_{k-1}
-\end{aligned}</script><p>应用高斯乘积定理，可以得到预测概率密度的表达式为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k-1}\right)=& \int N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k-1}, \boldsymbol{P}_{k \mid k-1}\right) \times \\
-& N\left(\boldsymbol{x}_{k-1} ; \hat{\boldsymbol{x}}_{k-1 \mid k-1}+G_{k}\left(\boldsymbol{x}_{k}-\hat{\boldsymbol{x}}_{k \mid k-1}\right), \boldsymbol{M}_{k}\right) \mathrm{d} \boldsymbol{x}_{k-1} \\
-=& N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k-1}, \boldsymbol{P}_{k \mid k-1}\right)
-\end{aligned}</script><p>这一操作即为标准卡尔曼滤波预测，其伪函数形式可写为</p>
-<script type="math/tex; mode=display">
-\left[\hat{\boldsymbol{x}}_{k \mid k-1}, \boldsymbol{P}_{k \mid k-1}\right]=K F_{p}\left[\hat{\boldsymbol{x}}_{k-1 \mid k-1}, \boldsymbol{P}_{k-1 \mid k-1}, \boldsymbol{F}, \boldsymbol{Q}\right]</script><p>其中</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\hat{\boldsymbol{x}}_{k \mid k-1}=\boldsymbol{F} \hat{\boldsymbol{x}}_{k-1 \mid k-1} \\
-\boldsymbol{P}_{k \mid k-1}=\boldsymbol{F} \boldsymbol{P}_{k-1 \mid k-1} \boldsymbol{F}^{\mathrm{T}}+\boldsymbol{Q}
-\end{array}</script><h3 id="似然函数与归一化因子"><a href="#似然函数与归一化因子" class="headerlink" title="似然函数与归一化因子"></a>似然函数与归一化因子</h3><p>似然函数：$p( \boldsymbol{y}_{k}\mid \boldsymbol{x}_{k}) = N(\boldsymbol{y}_{k};\boldsymbol{Hx}_k,\boldsymbol{R}_k)$</p>
-<p>归一化因子：</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-p\left(\boldsymbol{y}^{k} \mid \boldsymbol{y}^{k-1}\right) =\int p\left(\boldsymbol{y}_{k} \mid \boldsymbol{x}_{k}\right) p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k-1}\right) \mathrm{d} \boldsymbol{x}_{k} \\
-=\int N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \boldsymbol{x}_{k}, \boldsymbol{R}_{k}\right) N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k / k-1}, \boldsymbol{P}_{k \mid k-1}\right) \mathrm{d} \boldsymbol{x}_{k} \\
-=N\left(\boldsymbol{y}_{k} ; \boldsymbol{y}_{k \mid k-1}, \boldsymbol{S}_{k}\right) \end{array}</script><p>其中$\hat{\boldsymbol{y}}_{k \mid k-1}=\boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}, \boldsymbol{S}_{k}=\boldsymbol{H} \boldsymbol{P}_{k \mid k-1} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R}_{k}$</p>
-<h3 id="后验概率密度函数"><a href="#后验概率密度函数" class="headerlink" title="后验概率密度函数"></a>后验概率密度函数</h3><script type="math/tex; mode=display">
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k}\right)=\frac{N\left(\boldsymbol{y}_{k} ; \boldsymbol{H} \boldsymbol{x}_{k}, \boldsymbol{R}_{k}\right) N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k-1}, \boldsymbol{P}_{k \mid k-1}\right)}{N\left(\boldsymbol{y}_{k} ; \boldsymbol{y}_{k \mid k-1}, \boldsymbol{S}_{k}\right)}</script><p>再次利用高斯乘积定理，后验概率密度可以表示为</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-p\left(\boldsymbol{x}_{k} \mid \boldsymbol{y}^{k}\right)=N\left(\boldsymbol{x}_{k} ; \hat{\boldsymbol{x}}_{k \mid k}, \boldsymbol{P}_{k \mid k}\right) 
-\end{array}</script><p>其中</p>
-<script type="math/tex; mode=display">
-\hat{\boldsymbol{x}}_{k \mid k}=\hat{\boldsymbol{x}}_{k \mid k-1}+\boldsymbol{P}_{k \mid k-1} \boldsymbol{H}^{\mathrm{T}} \boldsymbol{S}_{k}^{-1}\left(\boldsymbol{y}_{k}-\hat{\boldsymbol{y}}_{k \mid k-1}\right) \\
-\boldsymbol{P}_{k \mid k}=\boldsymbol{P}_{k \mid k-1}-\boldsymbol{P}_{k \mid k-1} \boldsymbol{H}^{\mathrm{T}} \boldsymbol{S}_{k}^{-1} \boldsymbol{H} \boldsymbol{P}_{k \mid k-1}</script><p>到这里其实卡尔曼滤波的迭代估计就结束了，接下来给出一个算法的流程</p>
-<h2 id="算法流程"><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h2><p>卡尔曼滤波方程：</p>
-<ol>
-<li><p>计算预测均值和方差矩阵</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\hat{\boldsymbol{x}}_{k \mid k-1}=\boldsymbol{F} \hat{\boldsymbol{x}}_{k-1 \mid k-1} \\
-\boldsymbol{P}_{k \mid k-1}=\boldsymbol{F} \boldsymbol{P}_{k-1 \mid k-1} \boldsymbol{F}^{\mathrm{T}}+\boldsymbol{Q}_{k}
-\end{array}</script></li>
-<li><p>计算观测预测 、新息方差矩阵和卡尔曼滤波增益</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\hat{\boldsymbol{y}}_{k \mid k-1}=\boldsymbol{H} \hat{\boldsymbol{x}}_{k \mid k-1}\\
-\boldsymbol{S}_{k}=\boldsymbol{H} \boldsymbol{P}_{k \mid k-1} \boldsymbol{H}^{\mathrm{T}}+\boldsymbol{R} \\
-\boldsymbol{K}_{k}=\boldsymbol{P}_{k \mid k-1} \boldsymbol{H}^{\mathrm{T}} \boldsymbol{S}_{k}^{-1}
-\end{array}</script></li>
-<li><p>计算后验均值和方差矩阵</p>
-<script type="math/tex; mode=display">
-\begin{array}{c}
-\hat{\boldsymbol{x}}_{k \mid k}=\hat{\boldsymbol{x}}_{k \mid k-1}+\boldsymbol{K}_{k}\left(\boldsymbol{y}_{k}-\hat{\boldsymbol{y}}_{k \mid k-1}\right)\\
-\boldsymbol{P}_{k \mid k}=\left(\boldsymbol{I}-\boldsymbol{K}_{k} \boldsymbol{H}\right) \boldsymbol{P}_{k \mid k-1}
-\end{array}</script></li>
-</ol>
-<h2 id="matlab仿真"><a href="#matlab仿真" class="headerlink" title="matlab仿真"></a>matlab仿真</h2><p>根据算法流程可以写出KalmanFilter的一步迭代函数<br><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function [x_est,P_k_k] <span class="built_in">=</span> KalmanFilter(z_k,x_est_k_minus1,F,H,P_k,Q,R)</span><br><span class="line">   x_pre <span class="built_in">=</span> F*x_est_k_minus1;</span><br><span class="line">   P <span class="built_in">=</span> F*P_k*F<span class="string">&#x27; + Q;</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   z_pre = H*x_pre;</span></span><br><span class="line"><span class="string">   S = H*P*H&#x27;</span> + R;</span><br><span class="line">   K <span class="built_in">=</span> P*H<span class="string">&#x27;/(S);</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">   x_est = x_pre + K*(z_k - z_pre);</span></span><br><span class="line"><span class="string">   P_k_k = (eye(size(K*H,1))-K*H)*P;</span></span><br><span class="line"><span class="string">end</span></span><br></pre></td></tr></table></figure><br>参数的解释<br>输入参数:</p>
-<ol>
-<li>$z_k$ $k$时刻的量测值</li>
-<li>$x_est_k_minus1$ $k-1$时刻的状态后验估计</li>
-<li>$F$ 系统状态转移矩阵</li>
-<li>$H$ 量测矩阵</li>
-<li>$P_k$ $k-1$时刻的状态后验估计协方差矩阵</li>
-<li>$Q$ 过程噪声协方差矩阵</li>
-<li>$R$ 测量噪声协方差矩阵<br>输出参数:</li>
-<li>$x_est$ $k$时刻状态后验估计</li>
-<li>$P_k_k$ $k$时刻状态后验估计协方差矩阵</li>
-</ol>
-<p>下面给出一个实际代码的示例<br><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">clc;close <span class="built_in">all</span>;clear <span class="built_in">all</span></span><br><span class="line"></span><br><span class="line">for kk <span class="built_in">=</span> <span class="number">1</span>:<span class="number">100</span></span><br><span class="line"></span><br><span class="line">T <span class="built_in">=</span> <span class="number">0.01</span>;</span><br><span class="line">L <span class="built_in">=</span> <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line">F <span class="built_in">=</span> [<span class="number">1</span> T;</span><br><span class="line">     <span class="number">0</span> <span class="number">1</span>];</span><br><span class="line">x(:,<span class="number">1</span>) <span class="built_in">=</span> [<span class="number">0</span>;<span class="number">1</span>];</span><br><span class="line">y(<span class="number">1</span>) <span class="built_in">=</span> randn;</span><br><span class="line"></span><br><span class="line">H <span class="built_in">=</span> [<span class="number">1</span> <span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">v <span class="built_in">=</span> randn(<span class="number">1</span>,L);</span><br><span class="line">w <span class="built_in">=</span> <span class="number">1</span>*randn(<span class="number">1</span>,L);</span><br><span class="line"></span><br><span class="line">for i <span class="built_in">=</span><span class="number">2</span>:L</span><br><span class="line">    x(:,i) <span class="built_in">=</span> F*x(:,i-<span class="number">1</span>)+[T^<span class="number">2</span>/<span class="number">2</span>;T]*v(i);</span><br><span class="line">    y(i) <span class="built_in">=</span> H*x(:,i)+w(i); </span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Q <span class="built_in">=</span>[<span class="number">1</span>/<span class="number">3</span>*T^<span class="number">3</span> <span class="number">1</span>/<span class="number">2</span>*T^<span class="number">2</span>; <span class="number">1</span>/<span class="number">2</span>*T^<span class="number">2</span> T]*var(v);</span><br><span class="line">R <span class="built_in">=</span> <span class="number">2</span>*var(w);</span><br><span class="line"></span><br><span class="line">xe <span class="built_in">=</span> zeros(<span class="number">2</span>,L);</span><br><span class="line">xe(:,<span class="number">1</span>) <span class="built_in">=</span> randn(<span class="number">2</span>,<span class="number">1</span>);</span><br><span class="line">P <span class="built_in">=</span> eye(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">xe <span class="built_in">=</span> zeros(<span class="number">2</span>,L);</span><br><span class="line"></span><br><span class="line">for i<span class="built_in">=</span><span class="number">2</span>:L</span><br><span class="line">    [xe(:,i),P] <span class="built_in">=</span> KalmanFilter(y(i),xe(:,i-<span class="number">1</span>),F,H,P,Q,R);</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">Err_e(kk,:) <span class="built_in">=</span> xe(<span class="number">1</span>,:)-x(<span class="number">1</span>,:);</span><br><span class="line">Err_m(kk,:) <span class="built_in">=</span> w;</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br><span class="line"><span class="comment">%% 对最后一次结果进行展示</span></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">plot(y(<span class="number">1</span>,:),<span class="string">&#x27;g&#x27;</span>);</span><br><span class="line">plot(xe(<span class="number">1</span>,:),<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(x(<span class="number">1</span>,:));</span><br><span class="line">legend(<span class="string">&#x27;测量位置&#x27;</span>,<span class="string">&#x27;预测位置&#x27;</span>,<span class="string">&#x27;实际位置&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;时间序号（0.01s）&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;距离（m）&#x27;</span>);</span><br><span class="line">title(<span class="string">&#x27;kalman滤波位置估计&#x27;</span>)</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">plot(xe(<span class="number">2</span>,:));</span><br><span class="line">plot(x(<span class="number">2</span>,:));</span><br><span class="line">legend(<span class="string">&#x27;预测速度&#x27;</span>,<span class="string">&#x27;实际速度&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;时间序号（0.01s）&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;速度（m/s）&#x27;</span>);</span><br><span class="line">title(<span class="string">&#x27;kalman滤波速度估计&#x27;</span>)</span><br><span class="line"><span class="comment">%% 计算状态估计误差</span></span><br><span class="line"></span><br><span class="line">Var_E <span class="built_in">=</span> var(mean(Err_e));</span><br><span class="line">Var_M <span class="built_in">=</span> var(mean(Err_m));</span><br><span class="line"></span><br><span class="line">figure</span><br><span class="line">hold on</span><br><span class="line">plot(abs(mean(Err_e)),<span class="string">&#x27;linewidth&#x27;</span>,<span class="number">2</span>);</span><br><span class="line">plot(abs(mean(Err_m)));</span><br><span class="line">legend(<span class="string">&#x27;测量误差&#x27;</span>,<span class="string">&#x27;预测误差&#x27;</span>);</span><br><span class="line">xlabel(<span class="string">&#x27;时间序号（0.01s）&#x27;</span>);</span><br><span class="line">ylabel(<span class="string">&#x27;误差（m）&#x27;</span>);</span><br><span class="line">title([<span class="string">&#x27;误差分析 Var_&#123;exp&#125;=&#x27;</span> num2str(Var_E) <span class="string">&#x27; Var_&#123;M&#125;=&#x27;</span> num2str(Var_M) <span class="string">&#x27; Monte Carlo method(100)&#x27;</span>] );</span><br></pre></td></tr></table></figure><br>运行可以得到<br><img src="/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/KFpos.png" alt><br><img src="/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/KFvol.png" alt><br><img src="/2020/06/29/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/KF/KFerr.png" alt></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="YXY">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bulijiojio Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/28/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/%E6%9C%80%E4%BC%98%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%BB%A4%E6%B3%A2/" class="post-title-link" itemprop="url">最优贝叶斯滤波</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-28 21:01:30" itemprop="dateCreated datePublished" datetime="2020-06-28T21:01:30+08:00">2020-06-28</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-01 21:48:24" itemprop="dateModified" datetime="2021-04-01T21:48:24+08:00">2021-04-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="贝叶斯推理"><a href="#贝叶斯推理" class="headerlink" title="贝叶斯推理"></a>贝叶斯推理</h1><h2 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h2><script type="math/tex; mode=display">
-p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{x},\mathbf{y})}{p(\mathbf{y})}</script><p>再次利用该式可以重写为</p>
-<script type="math/tex; mode=display">
-p(\mathbf{x}|\mathbf{y} ) = \frac{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})}{p(\mathbf{y})}</script><p>通常称$p(\mathbf{x})$为先验分布，$p(\mathbf{y}|\mathbf{x})$为最大似然估计分布，$p(\mathbf{x}|\mathbf{y})$为后验分布。</p>
-<h2 id="目标跟踪中的贝叶斯递推"><a href="#目标跟踪中的贝叶斯递推" class="headerlink" title="目标跟踪中的贝叶斯递推"></a>目标跟踪中的贝叶斯递推</h2><p>$\mathbf{S}_k$为$k$时刻的广义目标状态。<br>联合概率密度函数$p(\mathbf{S}^k) =p(\mathbf{S}_0,\cdots, \mathbf{S}_k)$。<br>传感器输出$\mathbf{y}^{k}=(\mathbf{y}_{1}, \mathbf{y}_{2}, \cdots, \mathbf{y}_{k})$。</p>
-<p>由贝叶斯定理</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right) p\left(\mathbf{S}^{k}\right)}{p\left(\mathbf{y}^{k}\right)}</script><p>归一化因子计算：</p>
-<script type="math/tex; mode=display">p\left(\mathbf{y}^{k}\right)=\int_{\mathbf{S}_{k}} \cdots \int_{\mathbf{S}_{0}} p\left(\mathbf{y}^{k} \mid \mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) p\left(\mathbf{S}_{k}, \cdots, \mathbf{S}_{o}\right) \mathrm{d} \mathbf{S}_{k} \cdots \mathrm{d} \mathbf{S}_{o}</script><p>贝叶斯递推：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& p\left(\mathbf{y}^{k} \mid \mathbf{S}^{k}\right)=p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) \\
-& =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k}\right) =p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right)\\
-& p\left(\mathbf{S}^{k}\right) =p\left(\mathbf{S}_{k}, \mathbf{S}^{k-1}\right)=p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right) \\
-& p\left(\mathbf{y}^{k}\right) =p\left(\mathbf{y}_{k}, \mathbf{y}^{k-1}\right)=p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right) p\left(\mathbf{y}^{k-1}\right)
-\end{aligned}</script><p>带入</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)}\left\{\frac{p\left(\mathbf{y}^{k-1} \mid \mathbf{S}^{k-1}\right) p\left(\mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}^{k-1}\right)}\right\}</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}, \mathbf{S}^{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{S}^{k-1}\right)}{p\left(\mathbf{y}_{k} \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><script type="math/tex; mode=display">p\left(\mathbf{S}^{k} \mid \mathbf{y}^{k}\right)=\frac{p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right)}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}^{k-1} \mid \mathbf{y}^{k-1}\right)</script><p>通过推导可以得到</p>
-<script type="math/tex; mode=display">
-p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k-1}\right)</script><p>即就是</p>
-<script type="math/tex; mode=display">p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} \mid \mathbf{y}^{k-1}\right)} p\left(\mathbf{y}_{k} \mid \mathbf{S}_{k}\right) \int_{\mathbf{s}_{k-1}} p\left(\mathbf{S}_{k} \mid \mathbf{S}_{k-1}\right) p\left(\mathbf{S}_{k-1} \mid \mathbf{y}^{k-1}\right) \mathrm{d} \mathbf{S}_{k-1}</script>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1505,20 +1305,20 @@ p\left(\mathbf{S}_{k} \mid \mathbf{y}^{k}\right)=\frac{1}{p\left(\mathbf{y}_{k} 
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
