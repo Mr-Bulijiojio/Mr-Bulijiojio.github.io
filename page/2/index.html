@@ -156,6 +156,186 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/" class="post-title-link" itemprop="url">基于RLS的脉压雷达数字旁瓣抑制滤波器设计</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-09 21:56:47" itemprop="dateCreated datePublished" datetime="2020-07-09T21:56:47+08:00">2020-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-08 10:34:07" itemprop="dateModified" datetime="2021-05-08T10:34:07+08:00">2021-05-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Radar-Signal-Processing/" itemprop="url" rel="index"><span itemprop="name">Radar Signal Processing</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- # 基于RLS的脉压雷达数字旁瓣抑制滤波器设计 -->
+<h2 id="原理简述"><a href="#原理简述" class="headerlink" title="原理简述"></a>原理简述</h2><p>采用自适应滤波器设计中的递归最小二乘(RLS)方法，通过合理安排输入信号与期望信号的结构来设计脉冲压缩雷达数字旁瓣抑制滤波器，具有算法简单实用，适用广泛的特点，可用于线性调频、二相码和多相码等各种信号。在滤波器抽头有限的情况下，峰值旁瓣电平低于-40dB。主瓣宽度仅为单位采样符号间隔。</p>
+<p>衡量旁瓣抑制滤波器性能的指标主要有峰值旁瓣电平(<strong>PSL</strong>，peak side lobe level)和积累旁瓣电平(<strong>ISL</strong>，integrated side lobe level)，它们分别定义为最大旁瓣功率与峰值响应的比值以及旁瓣总功率与峰值响应的比值。</p>
+<p>对于雷达来说，理想的匹配滤波压缩波形应为一$\delta$函数。在实际的脉压波形中，非零旁瓣可视为噪声，于是，旁瓣抑制过程可看作是自适应噪声对消，只不过输入为原始的压缩信号(匹配滤波输出)。下图表示出了在迭代训练时，这种横向滤波器的结构框图。<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/RLSstructrue.png" alt><br>若设$\boldsymbol{x}$为$f_s(t)$的匹配滤波输出包络 , 则迭代时,输入信号$\boldsymbol{u}$应为$\boldsymbol{x}$的重复。为了消除前后$\boldsymbol{x}$之间的影响 ,其间应插入零向量$\boldsymbol{z}$, 且$\boldsymbol{z}$的长度应至少为所设定 的滤波器长度。这样才能使信号$\boldsymbol{x}$全部移出滤波器 后 ,下一个$\boldsymbol{x}$才进入滤波器;同时为了减少迭代次数, 零向量的长度又不宜过长。故$\boldsymbol{u}$为</p>
+<script type="math/tex; mode=display">
+\boldsymbol{u} = [\boldsymbol{x} \ \boldsymbol{z} \ \boldsymbol{x} \ \boldsymbol{z} \dotsb]</script><p>且有关系</p>
+<script type="math/tex; mode=display">
+ L_w =L_z</script><p>式中, $L_w$为滤波器抽头长度;$L_z$为零向量 z的长度。</p>
+<p>期望响应$\boldsymbol{d}$为理想狄拉克信号$\delta$的周期重复</p>
+<script type="math/tex; mode=display">
+\boldsymbol{d} = [\delta \ \delta \ \delta \dotsb]</script><p>考虑到FIR滤波器的时延特性那么，在$\delta$中，1的位置在$(L_w+L_x)/{2}$。</p>
+<p>之后根据RLS迭代算法</p>
+<script type="math/tex; mode=display">
+\left\{\begin{array}{l}
+e(n)=d(n)-\boldsymbol{w}^{H}(n-1) \boldsymbol{u}(n) \\
+\boldsymbol{k}(n)=\frac{\boldsymbol{P}(n-1) \boldsymbol{u}(n)}{\lambda+\boldsymbol{u}^{H}(n) \boldsymbol{P}(n-1) \boldsymbol{u}(n)} \\
+\boldsymbol{P}(n)=\frac{1}{\lambda}\left[\boldsymbol{P}(n-1)-\boldsymbol{k}(n) \boldsymbol{u}^{H}(n) \boldsymbol{P}(n-1)\right] \\
+\boldsymbol{w}(n)=\boldsymbol{w}(n-1)+\boldsymbol{k}(n) e^{*}(n)
+\end{array}\right.</script><p>初始化条件：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}
+\boldsymbol{w}(0)=\boldsymbol{0} \\
+\boldsymbol{P}(0)=\rho^{-1} \boldsymbol{I}
+\end{array}</script><p>其中$\rho$为正则化参数,其设定与信噪有关, 高信噪比时取较小值,低信噪比时取较大值。</p>
+<h2 id="仿真结果"><a href="#仿真结果" class="headerlink" title="仿真结果"></a>仿真结果</h2><h3 id="13位Barker码二进制相位调制波形仿真"><a href="#13位Barker码二进制相位调制波形仿真" class="headerlink" title="13位Barker码二进制相位调制波形仿真"></a>13位Barker码二进制相位调制波形仿真</h3><p>13位巴克码码元为$[1,1 ,1, 1, 1, -1 ,-1 ,1 ,1 ,-1 ,1 ,-1, 1 ]$</p>
+<p>通过匹配滤波器的结果如图<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/BarkerMF.png" alt><br>经过RS-RLS自适应滤波设计滤波器系数后得到<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/BarkerRSRLS.png" alt><br>通过对不同长度的滤波器进行PSL和ISL指标进行仿真得到<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/BarkerRSRLSPISL.png" alt></p>
+<h3 id="LFM信号仿真"><a href="#LFM信号仿真" class="headerlink" title="LFM信号仿真"></a>LFM信号仿真</h3><p>通过匹配滤波器的结果如图<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/LFMMF.png" alt><br>经过RS-RLS自适应滤波设计滤波器系数后得到<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/LFMRSRLS.png" alt><br>通过对不同长度的滤波器进行PSL和ISL指标进行仿真得到<br><img src="/2020/07/09/%E9%9B%B7%E8%BE%BE%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86/RS_RLS/LFMRSRLSPISL.png" alt></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/" class="post-title-link" itemprop="url">概率最邻近数据关联算法</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-09 00:01:30" itemprop="dateCreated datePublished" datetime="2020-07-09T00:01:30+08:00">2020-07-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-08 10:36:30" itemprop="dateModified" datetime="2021-05-08T10:36:30+08:00">2021-05-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- # 概率最邻近数据关联算法(PNNF) -->
+<p><img src="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/27ca3653c9364898ed318bd242ccf6b6.png" alt="27ca3653c9364898ed318bd242ccf6b6.png"><br><img src="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/26b6df4930c3fbb72cb71b6500725560.png" alt="26b6df4930c3fbb72cb71b6500725560.png"></p>
+<script type="math/tex; mode=display">
+\begin{array}{c}
+\hat{\boldsymbol{X}}(k \mid k)=\hat{\boldsymbol{X}}(k \mid k-1) \\
+\boldsymbol{P}(k \mid k)=\boldsymbol{P}(k \mid k-1)_{M_{0}}=\boldsymbol{P}(k \mid k-1)+\frac{P_{\mathrm{D}} P_{\mathrm{G}}\left(1-C_{\tau g}\right)}{1-P_{\mathrm{D}} P_{\mathrm{G}}} \boldsymbol{K}(k) \boldsymbol{S}(k) \boldsymbol{K}^{\prime}(k)
+\end{array}</script><p><img src="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/d24d66fe2d0098cc3561398f5e6bc776.png" alt="d24d66fe2d0098cc3561398f5e6bc776.png"><br><img src="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/1d887b77e32cf810ffff231e28d7383c.png" alt="1d887b77e32cf810ffff231e28d7383c.png"><br><img src="/2020/07/09/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%A6%82%E7%8E%87%E6%9C%80%E9%82%BB%E8%BF%91%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94%E7%AE%97%E6%B3%95/176bdc6893fc3d9fc2bab74d6da326f1.png" alt="176bdc6893fc3d9fc2bab74d6da326f1.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/01/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%BB%A4%E6%B3%A2%E9%A2%84%E6%B5%8B/IMMKF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -999,7 +1179,7 @@ h(t) = ks^*(t_0 -t)</script><p>由上式可知匹配滤波器的冲激响应就�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
