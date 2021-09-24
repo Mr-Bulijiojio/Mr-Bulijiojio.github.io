@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准. 在上一篇博客中我们宏观的介绍了整个系统的硬件架构以及展示出了一副大的程序执行框图, 在这篇博客中我们将沿着系统软件执行流程, 走马观花式的介绍整个 mmWave Out of box demo 源码, 源码的代码极其的庞大, 同时这样一份系统性的代码阅读下来他的附加价值是很高的. 因为这篇博客介绍软件源码是走马观花式的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mmWave_Tutorial5-源码走读mmWave Out of box demo">
+<meta property="og:url" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/index.html">
+<meta property="og:site_name" content="Bulijiojio Blog">
+<meta property="og:description" content="前言写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准. 在上一篇博客中我们宏观的介绍了整个系统的硬件架构以及展示出了一副大的程序执行框图, 在这篇博客中我们将沿着系统软件执行流程, 走马观花式的介绍整个 mmWave Out of box demo 源码, 源码的代码极其的庞大, 同时这样一份系统性的代码阅读下来他的附加价值是很高的. 因为这篇博客介绍软件源码是走马观花式的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/big_picture.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/mss.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/dss.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/cfarCfgCLIcommond.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/profileCfgCLIcommond.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/sensorStartCfgCLIcommond.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/MmwDemo_configSensor.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/mmw_config.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/MmwDemo_startSensor.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/DSSgetDPMstart.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/event.png">
+<meta property="og:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/postframeEvent.png">
+<meta property="article:published_time" content="2021-09-04T16:27:40.000Z">
+<meta property="article:modified_time" content="2021-09-24T04:43:14.992Z">
+<meta property="article:author" content="YXY">
+<meta property="article:tag" content="mmWave_tutorial">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/big_picture.png">
+
+<link rel="canonical" href="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mmWave_Tutorial5-源码走读mmWave Out of box demo | Bulijiojio Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Bulijiojio Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">日常摸鱼划水的虾皮--如果公式不能正常显示请使用Chrome浏览器并安装Tex All the Things插件</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/09/05/xWRnote/mmWave_Tutorial5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mmWave_Tutorial5-源码走读mmWave Out of box demo
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-05 00:27:40" itemprop="dateCreated datePublished" datetime="2021-09-05T00:27:40+08:00">2021-09-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-24 12:43:14" itemprop="dateModified" datetime="2021-09-24T12:43:14+08:00">2021-09-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TI-project/" itemprop="url" rel="index"><span itemprop="name">TI project</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准.</p>
+<p>在上一篇博客中我们宏观的介绍了整个系统的硬件架构以及展示出了一副大的程序执行框图, 在这篇博客中我们将沿着系统软件执行流程, 走马观花式的介绍整个 mmWave Out of box demo 源码, 源码的代码极其的庞大, 同时这样一份系统性的代码阅读下来他的附加价值是很高的. 因为这篇博客介绍软件源码是走马观花式的, 所以强烈建议读者抽出时间仔细的研读源码, 对整个源码进行系统性的梳理以及细节的挖掘, 建议用时在<strong>15天</strong>左右. 这篇博客中我所给出的一些软件执行的框图也是在阅读源码的过程中进行整理的. </p>
+<h1 id="阅读思路"><a href="#阅读思路" class="headerlink" title="阅读思路"></a>阅读思路</h1><p>由于demo的源码非常的庞大, 我们需要对它进行宏观把握的前提下进行阅读, 在我进行源码结构梳理的时候我喜欢用一些显著的时间节点来进行分割, 比如 当我在CLI port进行配置时 demo的程序进行了如何的调用, 我在CLI port 发送 sensor start 的时候 demo程序中发生了什么, ARM端发送了什么样的信息告知DSP进行信号处理, DSP 如何将已经处理好的点云数据传送至ARM端等等. 同时在进行源码结构梳理的时候通过对源码进行功能划分, 是最直观且高效的结构梳理方法, Demo中的 功能区划主要有如下的几个:</p>
+<ol>
+<li>CLI: 负责与用户的信息交互 如配置, sensor的控制等</li>
+<li>MMWave: 与 DFE 进行控制信息交换等. </li>
+<li>DPC(DSP): Data process control 用于控制DSP端的信号处理和控制组件</li>
+<li>DPC(HWA): 用于控制arm端 hardware  accelerator 的信号处理和控制组件 </li>
+<li>DPM: data path manager, 顾名思义 就是在 MSS 和 DSS 中负责数据传输的管理组件</li>
+<li>Demo Misc:  负责 demo 中各各种为了使程序能够正常运行的中间组件比如协调控制, 信息交互等等. </li>
+</ol>
+<p>在进行源码梳理的时候我们将围绕着 MSS 和 DSS 这两个相对独立的子系统上运行的程序展开, 同时在本篇博客中给出的软件执行框图中每一部软件执行的步骤都将使用在源码中的函数名进行表示.</p>
+<p>下图展示了一个完整的代码结构整理, 他以上一章最后提到的系统执行流程为中心, 以 MSS和 DSS 两条线索分别展开.<br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/big_picture.png" alt></p>
+<h1 id="源码走读"><a href="#源码走读" class="headerlink" title="源码走读"></a>源码走读</h1><p>在代码执行初期 MSS 和 DSS 分别执行他们的初始化任务. </p>
+<h2 id="MSS初始化"><a href="#MSS初始化" class="headerlink" title="MSS初始化"></a>MSS初始化</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/mss.png" alt></p>
+<h2 id="DSS初始化"><a href="#DSS初始化" class="headerlink" title="DSS初始化"></a>DSS初始化</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/dss.png" alt></p>
+<h2 id="当MSS在串口收到Cfar配置信息或者Profile配置信息时"><a href="#当MSS在串口收到Cfar配置信息或者Profile配置信息时" class="headerlink" title="当MSS在串口收到Cfar配置信息或者Profile配置信息时"></a>当MSS在串口收到Cfar配置信息或者Profile配置信息时</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/cfarCfgCLIcommond.png" alt><br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/profileCfgCLIcommond.png" alt></p>
+<h2 id="当MSS在串口收到sensor-start指令时"><a href="#当MSS在串口收到sensor-start指令时" class="headerlink" title="当MSS在串口收到sensor start指令时"></a>当MSS在串口收到sensor start指令时</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/sensorStartCfgCLIcommond.png" alt><br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/MmwDemo_configSensor.png" alt><br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/mmw_config.png" alt><br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/MmwDemo_startSensor.png" alt></p>
+<h2 id="当DSS从MSS那里得到DPM-start的消息后"><a href="#当DSS从MSS那里得到DPM-start的消息后" class="headerlink" title="当DSS从MSS那里得到DPM start的消息后"></a>当DSS从MSS那里得到DPM start的消息后</h2><p>同时会向MSS端报告DPC_STARTED, MSS在得到DSS端DPC_STARTED的消息后会在CLI port打印 Done 的消息<br><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/DSSgetDPMstart.png" alt><br>之后DSS的HWA和DSS就会等待DFE的数据</p>
+<h2 id="当Frame-Event的硬件中断到来-表明当前的Frame已经开始了"><a href="#当Frame-Event的硬件中断到来-表明当前的Frame已经开始了" class="headerlink" title="当Frame Event的硬件中断到来, 表明当前的Frame已经开始了"></a>当Frame Event的硬件中断到来, 表明当前的Frame已经开始了</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/event.png" alt></p>
+<h2 id="在Frame结束后的后处理-如数据传输等"><a href="#在Frame结束后的后处理-如数据传输等" class="headerlink" title="在Frame结束后的后处理,如数据传输等"></a>在Frame结束后的后处理,如数据传输等</h2><p><img src="/2021/09/05/xWRnote/mmWave_Tutorial5/postframeEvent.png" alt></p>
+<h1 id="相关代码-plantuml"><a href="#相关代码-plantuml" class="headerlink" title="相关代码(plantuml)"></a>相关代码(plantuml)</h1><p>为了方便 大家在自行整理源码结构, 以上软件流程框图的 plantuml 源码已经上传至github读者可以自行下载</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/Mr-Bulijiojio/NotesTIproject">https://github.com/Mr-Bulijiojio/NotesTIproject</a></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mmWave-tutorial/" rel="tag"># mmWave_tutorial</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/04/xWRnote/mmWave_Tutorial4/" rel="prev" title="mmWave_Tutorial4-初尝mmWave Out of box demo">
+      <i class="fa fa-chevron-left"></i> mmWave_Tutorial4-初尝mmWave Out of box demo
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/06/xWRnote/mmWave_Tutorial6/" rel="next" title="mmWave_Tutorial6-mmWave原始数据获取">
+      mmWave_Tutorial6-mmWave原始数据获取 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%85%E8%AF%BB%E6%80%9D%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text">阅读思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E8%B5%B0%E8%AF%BB"><span class="nav-number">3.</span> <span class="nav-text">源码走读</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MSS%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">MSS初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DSS%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">DSS初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93MSS%E5%9C%A8%E4%B8%B2%E5%8F%A3%E6%94%B6%E5%88%B0Cfar%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E6%88%96%E8%80%85Profile%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF%E6%97%B6"><span class="nav-number">3.3.</span> <span class="nav-text">当MSS在串口收到Cfar配置信息或者Profile配置信息时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93MSS%E5%9C%A8%E4%B8%B2%E5%8F%A3%E6%94%B6%E5%88%B0sensor-start%E6%8C%87%E4%BB%A4%E6%97%B6"><span class="nav-number">3.4.</span> <span class="nav-text">当MSS在串口收到sensor start指令时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93DSS%E4%BB%8EMSS%E9%82%A3%E9%87%8C%E5%BE%97%E5%88%B0DPM-start%E7%9A%84%E6%B6%88%E6%81%AF%E5%90%8E"><span class="nav-number">3.5.</span> <span class="nav-text">当DSS从MSS那里得到DPM start的消息后</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%93Frame-Event%E7%9A%84%E7%A1%AC%E4%BB%B6%E4%B8%AD%E6%96%AD%E5%88%B0%E6%9D%A5-%E8%A1%A8%E6%98%8E%E5%BD%93%E5%89%8D%E7%9A%84Frame%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E4%BA%86"><span class="nav-number">3.6.</span> <span class="nav-text">当Frame Event的硬件中断到来, 表明当前的Frame已经开始了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Frame%E7%BB%93%E6%9D%9F%E5%90%8E%E7%9A%84%E5%90%8E%E5%A4%84%E7%90%86-%E5%A6%82%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E7%AD%89"><span class="nav-number">3.7.</span> <span class="nav-text">在Frame结束后的后处理,如数据传输等</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81-plantuml"><span class="nav-number">4.</span> <span class="nav-text">相关代码(plantuml)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">YXY</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Mr-Bulijiojio" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Mr-Bulijiojio" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/frompyrmaidinside@gmail.com" title="E-Mail → frompyrmaidinside@gmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">YXY</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

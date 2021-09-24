@@ -20,20 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="123456789101112131415161718192021222324252627282930313233343536373839@startuml dsspartition main    (*) --&gt; SOC_init()    --&gt;[create]MmwDemo_dssInitTask()    --&gt;BIOS_start()    --&gt; return">
+  <meta name="description" content="前言写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准. 在前几个mmWave_Tutorial的博客中我们讲的关于TI out box demo, Ti 3D people counting demo 以及使用他们的数据进行的目标跟踪与航迹管理, 那读者们就很容易好奇在mmWave SoC 里面真正进行了怎样的处理,它的程序又是怎样编写的呢? 从本篇博客开始我们将一步一步的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mmWave Out of box demo的目标跟踪">
-<meta property="og:url" content="https://example.com/2021/09/23/xWRnote/Experiment2/index.html">
+<meta property="og:title" content="mmWave_Tutorial4-初尝mmWave Out of box demo">
+<meta property="og:url" content="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/index.html">
 <meta property="og:site_name" content="Bulijiojio Blog">
-<meta property="og:description" content="123456789101112131415161718192021222324252627282930313233343536373839@startuml dsspartition main    (*) --&gt; SOC_init()    --&gt;[create]MmwDemo_dssInitTask()    --&gt;BIOS_start()    --&gt; return">
+<meta property="og:description" content="前言写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准. 在前几个mmWave_Tutorial的博客中我们讲的关于TI out box demo, Ti 3D people counting demo 以及使用他们的数据进行的目标跟踪与航迹管理, 那读者们就很容易好奇在mmWave SoC 里面真正进行了怎样的处理,它的程序又是怎样编写的呢? 从本篇博客开始我们将一步一步的">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-09-22T16:27:40.000Z">
-<meta property="article:modified_time" content="2021-09-22T16:28:50.467Z">
+<meta property="og:image" content="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/hardware_architecture.gif">
+<meta property="og:image" content="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/system_flow.png">
+<meta property="article:published_time" content="2021-09-03T16:27:40.000Z">
+<meta property="article:modified_time" content="2021-09-24T01:41:06.209Z">
 <meta property="article:author" content="YXY">
 <meta property="article:tag" content="mmWave_tutorial">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/hardware_architecture.gif">
 
-<link rel="canonical" href="https://example.com/2021/09/23/xWRnote/Experiment2/">
+<link rel="canonical" href="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/">
 
 
 <script id="page-configurations">
@@ -46,7 +49,7 @@
   };
 </script>
 
-  <title>mmWave Out of box demo的目标跟踪 | Bulijiojio Blog</title>
+  <title>mmWave_Tutorial4-初尝mmWave Out of box demo | Bulijiojio Blog</title>
   
 
 
@@ -162,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://example.com/2021/09/23/xWRnote/Experiment2/">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2021/09/04/xWRnote/mmWave_Tutorial4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -175,7 +178,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          mmWave Out of box demo的目标跟踪
+          mmWave_Tutorial4-初尝mmWave Out of box demo
         </h1>
 
         <div class="post-meta">
@@ -184,10 +187,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-09-23 00:27:40 / 修改时间：00:28:50" itemprop="dateCreated datePublished" datetime="2021-09-23T00:27:40+08:00">2021-09-23</time>
+              <time title="创建时间：2021-09-04 00:27:40" itemprop="dateCreated datePublished" datetime="2021-09-04T00:27:40+08:00">2021-09-04</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-09-24 09:41:06" itemprop="dateModified" datetime="2021-09-24T09:41:06+08:00">2021-09-24</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -209,7 +218,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">@startuml dss</span><br><span class="line"></span><br><span class="line">partition main</span><br><span class="line">    (*) --&gt; SOC_init()</span><br><span class="line">    --&gt;[create]MmwDemo_dssInitTask()</span><br><span class="line">    --&gt;BIOS_start()</span><br><span class="line">    --&gt; return </span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;MmwDemo_dssInitTask&quot;</span><br><span class="line">    &quot;MmwDemo_dssInitTask()&quot;-&gt;Mailbox_init()</span><br><span class="line">    --&gt;MmwDemo_edmaInit</span><br><span class="line">    --&gt;MmwDemo_edmaOpen</span><br><span class="line">    --&gt;DPM_init()</span><br><span class="line">    --&gt;DPM_synch()</span><br><span class="line">    --&gt;[until success]DPM_synch()</span><br><span class="line">    --&gt;[create]MmwDemo_DPC_ObjectDetection_dpmTask()</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;MmwDemo_DPC_ObjectDetection_dpmTask&quot;</span><br><span class="line">    &quot;MmwDemo_DPC_ObjectDetection_dpmTask()&quot; -&gt; DPM_execute()</span><br><span class="line">    --&gt;Cycleprofiler_getTimeStamp()</span><br><span class="line">    --&gt;MmwDemo_updateObjectDetStats()</span><br><span class="line">    --&gt;MmwDemo_copyResultToHSRAM()</span><br><span class="line">    --&gt;DPM_sendResult()</span><br><span class="line">    --&gt;DPM_execute()</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">partition &quot;DPM_execute&quot;</span><br><span class="line">    &quot;DPM_execute()&quot;-&gt;SemaphoreP_pend(ptrDPM-&gt;semaphoreHandle, SemaphoreP_WAIT_FOREVER)</span><br><span class="line">    note right:Pending on the semaphore: Waiting for events to be received</span><br><span class="line">    --&gt;DPM_msgRecv()</span><br><span class="line">    --&gt;HwiP_disable()</span><br><span class="line">    --&gt;HwiP_restore()</span><br><span class="line">    --&gt;ptrDPM-&gt;procChainCfg.executeFxn()</span><br><span class="line">    note right:确实需要处理DPC</span><br><span class="line">end partition</span><br><span class="line"></span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>写在最前面, 如果博客内容与实际TI文档有任何出入,请以TI官方文档为准.</p>
+<p>在前几个mmWave_Tutorial的博客中我们讲的关于TI out box demo, Ti 3D people counting demo 以及使用他们的数据进行的目标跟踪与航迹管理, 那读者们就很容易好奇在mmWave SoC 里面真正进行了怎样的处理,它的程序又是怎样编写的呢? 从本篇博客开始我们将一步一步的去了解 ti out of box demo 中的一些细节,我们将首先从整个软件的架构开始讲起同时也会结合相应的硬件结构进行讲述, 这个部分中如果读者有兴趣, 我强烈建议读者去自行阅读如下所示ti官方的文档  </p>
+<blockquote>
+<p>ti/mmwave_sdk_03_04_00_03/packages/ti/demo/xwr68xx/mmw/docs/doxygen/html/index.html</p>
+</blockquote>
+<h1 id="Hardware-System-Overview"><a href="#Hardware-System-Overview" class="headerlink" title="Hardware System Overview"></a>Hardware System Overview</h1><p>TI out box demo运行在mmWave SoC上, 要去理解一个软件架构是如何工作的首先就需要去了解支持这个软件运行的硬件架构是怎样, 如下图<br><img src="/2021/09/04/xWRnote/mmWave_Tutorial4/hardware_architecture.gif" alt><br>我们可以看到, 整个mmWave SoC系统由4个子系统构成</p>
+<ol>
+<li>RF/Analogy sub-system: 主要负责发射射频链路的信号合成, 移相以及功率放大, 接收射频链路的低噪声放大, 相干接收(混频,滤波)等等, 是TI MMIC的核心技术 </li>
+<li>Radio processor sub-system: 主要负责后端的数字下变频(DDC), 相位矫正等等功能, 与射频前端的组合成一个由TI预programmed的blackbox, 也只对外部系统提供API</li>
+<li>Main sub-system: 由一个arm cortex R4F内核以及相应的数字系统构成(如总线, 硬件加速器(硬核), 数字外设等等), 主要负责系统的控制, 部分信号处理和与外部的交互等等</li>
+<li>DSP sub-system: 由一个C674x DSP大核和周边数字系统构成, 承担了系统大部分的信号处理工作, 同时也控制了由DFE来的数据通过LVDS向外传输的过程(DFE的数据会直接送入DSP的L3 Cache中).</li>
+</ol>
+<p>mmWave雷达的控制和信号处理任务是分散在一个芯片上的各个不同子系统上的, 而我们在进行软件设计时往往需要设计一个统一的执行框架, 使得不同子系统的信息能够高效的交互, 那么ti的工程师在设计相关的软件时也始终贯彻这个理念. 对于我们这样的用户来说我们真正需要关心的是在ti进行芯片设计时预留出了哪些用户可以编程的部分, 答案当然是ARM和DSP, TI也提供了一套完整的系统执行框架-实时嵌入式操作系统SYSBIOS, 熟悉嵌入式操作系统的读者应该对于这个不会感到陌生, 而且ti官方也提供给我们了丰富的外设驱动程序, 只要在进行程序设计时, 能够正确的处理不同线程间的信号量, mmWave SoC系统开发人员就能够实现大部分的功能. 有了多个异构运算核心的统一的执行框架, 那么ARM和DSP之间信息如何交互呢, 在上图中我们可以看到Bus Matrix 和 Mailbox, 他们就是信息交互的硬件基础. </p>
+<h1 id="Software-System-Overview"><a href="#Software-System-Overview" class="headerlink" title="Software System Overview"></a>Software System Overview</h1><p>下图显示了系统执行流程, 这幅图又大又长, 笔者在看到这幅图也是懵逼的但是我将在接下来的一篇博客中带着大家一起简单的过一遍这幅图. 在这里需要从这幅图中先粗略的get到一些上文中提到的概念的映射, 比如BSS代表RF/Analogy sub-system和Radio processor sub-system, MSS代表Main sub-system, BSS 代表 DSP sub-system. ARM和DSP即MSS 和 DSS 的线程间通信 IPC在图中的表示等等<br><img src="/2021/09/04/xWRnote/mmWave_Tutorial4/system_flow.png" alt></p>
+
     </div>
 
     
@@ -227,10 +250,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/09/02/xWRnote/mmWave_Tutorial2/" rel="prev" title="mmWave 3D people counting demo">
-      <i class="fa fa-chevron-left"></i> mmWave 3D people counting demo
+    <a href="/2021/09/03/xWRnote/mmWave_Tutorial3/" rel="prev" title="mmWave_Tutorial3-快速上手Target tracking and management">
+      <i class="fa fa-chevron-left"></i> mmWave_Tutorial3-快速上手Target tracking and management
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/05/xWRnote/mmWave_Tutorial5/" rel="next" title="mmWave_Tutorial5-源码走读mmWave Out of box demo">
+      mmWave_Tutorial5-源码走读mmWave Out of box demo <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -289,6 +315,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hardware-System-Overview"><span class="nav-number">2.</span> <span class="nav-text">Hardware System Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Software-System-Overview"><span class="nav-number">3.</span> <span class="nav-text">Software System Overview</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -302,7 +329,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
