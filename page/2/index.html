@@ -156,6 +156,104 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/17/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%B3%A2%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="YXY">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bulijiojio Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/07/17/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%B3%A2%E9%97%A8/" class="post-title-link" itemprop="url">波门</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-17 00:01:30" itemprop="dateCreated datePublished" datetime="2020-07-17T00:01:30+08:00">2020-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-08 10:36:18" itemprop="dateModified" datetime="2021-05-08T10:36:18+08:00">2021-05-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Tracking/" itemprop="url" rel="index"><span itemprop="name">Tracking</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- #波门 -->
+<h1 id="目标跟踪中波门形状与参数"><a href="#目标跟踪中波门形状与参数" class="headerlink" title="目标跟踪中波门形状与参数"></a>目标跟踪中波门形状与参数</h1><h2 id="环形波门"><a href="#环形波门" class="headerlink" title="环形波门"></a>环形波门</h2><p>环形波门一般用于航迹起始的初始化，是半径为$V_{min}\times T$和$V_{max}\times T$的圆包围的圆环</p>
+<h2 id="椭圆（球）波门"><a href="#椭圆（球）波门" class="headerlink" title="椭圆（球）波门"></a>椭圆（球）波门</h2><p>若传感器测得的目标直角坐标系下的转换量测值 $Z_{c}(k+1)$ 满足:</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\tilde{V}_{k+1}(\gamma) \underline{\Delta} &\left[\boldsymbol{Z}_{c}(k+1)-\hat{\boldsymbol{Z}}_{c}(k+1 \mid k)\right]^{\prime} \boldsymbol{S}^{-1}(k+1)\left[\boldsymbol{Z}_{c}(k+1)-\hat{\boldsymbol{Z}}_{c}(k+1 \mid k)\right] \\
+&=\boldsymbol{v}_{c}^{\prime}(k+1) \boldsymbol{S}^{-1}(k+1) \boldsymbol{v}_{c}(k+1) \leqslant \gamma
+\end{aligned}</script><p>则称转换量测值 $\boldsymbol{Z}_{c}(k+1)$ 为候选回波，上式称为椭圆（球）波门规则。其中参数 由 $\chi^{2}$ 分布表获得。若量测值 $\boldsymbol{Z}_{c}(k+1)$ 为 $n_{z}$ 维，则 $\tilde{\boldsymbol{V}}_{k+1}(\gamma)$ 是将<strong>残差标准化后</strong>的具有 $n_{z}$ 个自由度的 $\chi^{2}$ 分布随机变量。</p>
+<p>$\gamma$的值可以通过matlab函数chi2inv(1-alpha,nz)生成</p>
+<p>对于不同 $\gamma$ 值和不同量测维数 $n_{z},$ 真实转换量测落入波门内的概率 $P_{\mathrm{G}}$ 就不同，定义</p>
+<script type="math/tex; mode=display">
+P_{\mathrm{G}}=\operatorname{Pr}\left\{\boldsymbol{Z}_{c}(k+1) \in \tilde{V}_{k+1}(\gamma)\right\}</script><p>$P_{\mathrm{G}}$ 与量测维数 $n_{z}$ 和参数 $\gamma$ 的关系式可用下表表示。<br><img src="/2020/07/17/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E6%B3%A2%E9%97%A8/f3025a12a98ee9b7b8a32364be5a4256.png" alt="f3025a12a98ee9b7b8a32364be5a4256.png"></p>
+<p>相应的$P_G$计算的matlab代码如下：<br><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">function P_G <span class="built_in">=</span> PG(gamma,N_z)</span><br><span class="line"><span class="comment">% 只实现了4维</span></span><br><span class="line">    switch (N_z)</span><br><span class="line">        case <span class="number">1</span></span><br><span class="line">            P_G <span class="built_in">=</span> <span class="number">2</span>*(normcdf(sqrt(gamma)) - normcdf(<span class="number">0</span>));</span><br><span class="line">        case <span class="number">2</span></span><br><span class="line">            P_G <span class="built_in">=</span> <span class="number">1</span>-exp(-gamma/<span class="number">2</span>);</span><br><span class="line">        case <span class="number">3</span></span><br><span class="line">            P_G <span class="built_in">=</span> <span class="number">2</span>*(normcdf(sqrt(gamma)) - normcdf(<span class="number">0</span>)) - sqrt(<span class="number">2</span>*gamma/pi)*exp(-gamma/<span class="number">2</span>);</span><br><span class="line">        case <span class="number">4</span></span><br><span class="line">            P_G <span class="built_in">=</span> <span class="number">1</span>-(<span class="number">1</span>+gamma/<span class="number">2</span>)*exp(-gamma/<span class="number">2</span>);</span><br><span class="line">        otherwise</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure><br>$n_{z}$ 维析圆（球）波门的面（体）积为</p>
+<script type="math/tex; mode=display">
+V_{\text {椭}}\left(n_{z}\right)=c_{n_{z}} \gamma^{\frac{n_{z}}{2}}|\boldsymbol{S}(k+1)|^{\frac{1}{2}}</script><p>式中</p>
+<script type="math/tex; mode=display">
+c_{n_{z}}=\left\{\begin{array}{cc}
+\frac{\pi^{\frac{n_{z}}{2}}}{\left(n_{z} / 2\right) !}, & n_{z} \text { 为偶数 } \\
+\frac{2^{n_{z}+1}\left(\frac{n_{z}+1}{2}\right) ! \pi^{\frac{n_{z}-1}{2}}}{\left(n_{z}+1\right) !}, & n_{z} \text { 为奇数 }
+\end{array}\right.</script><p>当 $n_{z}=1,2,3$ 时， $c_{n_{z}}$ 分别为 $2, \pi$ 和 $4 \pi / 3$。</p>
+<p>利用新息协方差的标准差归一化可以得到</p>
+<script type="math/tex; mode=display">
+V^{u}_{\text {椭}}\left(n_{z}\right)=c_{n_{z}} \gamma^{\frac{n_{z}}{2}}</script><p>通过下式进行归一化：</p>
+<script type="math/tex; mode=display">
+\frac{\boldsymbol{Z}_{c}(k+1)-\hat{\boldsymbol{Z}}_{c}(k+1 \mid k)}{\sqrt{\mid\mathbf{S(k+1)}\mid}}</script><p>相应的$V_{\text {椭}}\left(n_{z}\right)$计算的matlab代码如下：<br><figure class="highlight m"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function [Volume] <span class="built_in">=</span> ellipse_Volume(gamma,N_z,S)</span><br><span class="line">    switch (N_z)</span><br><span class="line">        case <span class="number">1</span></span><br><span class="line">            Volume <span class="built_in">=</span> <span class="number">2</span>*sqrt(gamma)*sqrt(<span class="keyword">det</span>(S));</span><br><span class="line">        case <span class="number">2</span></span><br><span class="line">            Volume <span class="built_in">=</span> pi*gamma*sqrt(<span class="keyword">det</span>(S));</span><br><span class="line">        case <span class="number">3</span></span><br><span class="line">            Volume <span class="built_in">=</span> <span class="number">4</span>*pi/<span class="number">3</span>*gamma^(<span class="number">3</span>/<span class="number">2</span>)*sqrt(<span class="keyword">det</span>(S));</span><br><span class="line">        otherwise</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://example.com/2020/07/15/%E7%9B%AE%E6%A0%87%E8%B7%9F%E8%B8%AA%E6%95%B0%E6%8D%AE%E5%85%B3%E8%81%94/%E8%88%AA%E8%BF%B9%E8%B5%B7%E5%A7%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1261,7 +1359,7 @@ h(t) = ks^*(t_0 -t)</script><p>由上式可知匹配滤波器的冲激响应就�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
